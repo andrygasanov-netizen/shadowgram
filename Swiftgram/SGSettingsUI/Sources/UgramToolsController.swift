@@ -51,6 +51,7 @@ private func ugramEntries(presentationData: PresentationData) -> [UgramEntry] {
         return isRussian ? ru : en
     }
     let settings = SGSimpleSettings.shared
+    let ugram = UgramSettings.shared
 
     var entries: [UgramEntry] = []
     let id = SGItemListCounter()
