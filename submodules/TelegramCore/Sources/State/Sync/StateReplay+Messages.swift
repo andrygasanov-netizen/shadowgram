@@ -1,4 +1,4 @@
-import SGSimpleSettings // MARK: Ugram
+import UgramSettings // MARK: Ugram
 import Foundation
 import Postbox
 import SwiftSignalKit
@@ -276,7 +276,7 @@ extension ReplayContext {
     
     func applyDeleteMessagesWithGlobalIds(_ ids: [Int32]) {
         // MARK: Ugram
-        if SGSimpleSettings.shared.ugramSaveDeletedMessages {
+        if UgramSettings.shared.bool("ugramSaveDeletedMessages", default: true) {
             let _ = ugramMarkMessagesAsDeleted(transaction: transaction, ids: transaction.messageIdsForGlobalIds(ids))
             return
         }
@@ -293,7 +293,7 @@ extension ReplayContext {
     func applyDeleteMessages(_ ids: [MessageId]) {
         // MARK: Ugram
         var ids = ids
-        if SGSimpleSettings.shared.ugramSaveDeletedMessages {
+        if UgramSettings.shared.bool("ugramSaveDeletedMessages", default: true) {
             ids = ugramMarkMessagesAsDeleted(transaction: transaction, ids: ids)
             if ids.isEmpty {
                 return

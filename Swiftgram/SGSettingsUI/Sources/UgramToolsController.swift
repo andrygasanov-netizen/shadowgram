@@ -1,5 +1,6 @@
 // MARK: Ugram
 import SGSimpleSettings
+import UgramSettings
 import SGItemListUI
 
 import Foundation
@@ -55,17 +56,17 @@ private func ugramEntries(presentationData: PresentationData) -> [UgramEntry] {
     let id = SGItemListCounter()
 
     entries.append(.header(id: id.count, section: .deletedMessages, text: t("УДАЛЁННЫЕ СООБЩЕНИЯ", "DELETED MESSAGES"), badge: nil))
-    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .saveDeletedMessages, value: settings.ugramSaveDeletedMessages, text: t("Сохранять удалённые сообщения", "Keep deleted messages"), enabled: true))
-    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .markDeletedMessages, value: settings.ugramMarkDeletedMessages, text: t("Помечать значком 🗑", "Mark with 🗑"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .saveDeletedMessages, value: ugram.bool("ugramSaveDeletedMessages", default: true), text: t("Сохранять удалённые сообщения", "Keep deleted messages"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .markDeletedMessages, value: ugram.bool("ugramMarkDeletedMessages", default: true), text: t("Помечать значком 🗑", "Mark with 🗑"), enabled: true))
     entries.append(.notice(id: id.count, section: .deletedMessages, text: t("Сообщения, которые собеседник удалил у всех, остаются в чате на этом устройстве и помечаются корзиной рядом со временем. Сохраняется только то, что уже было загружено в приложение. Секретные чаты и самоуничтожающиеся сообщения не сохраняются. Чтобы убрать такое сообщение, удалите его вручную.", "Messages deleted for everyone stay in the chat on this device and get a bin mark next to the time. Only messages that were already loaded by the app can be kept. Secret chats and self-destructing messages are not kept. Delete such a message manually to get rid of it.")))
 
-    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .keepSelfDestructingMedia, value: settings.ugramKeepSelfDestructingMedia, text: t("Сохранять исчезающие фото и видео", "Keep self-destructing photos and videos"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .keepSelfDestructingMedia, value: ugram.bool("ugramKeepSelfDestructingMedia", default: true), text: t("Сохранять исчезающие фото и видео", "Keep self-destructing photos and videos"), enabled: true))
     entries.append(.notice(id: id.count, section: .deletedMessages, text: t("Одноразовые и исчезающие фото, видео и голосовые приходят как обычные: их можно открывать сколько угодно раз и сохранять, а отправитель не видит, что вы их открыли. Действует только на медиа, полученные после включения.", "View-once and self-destructing photos, videos and voice messages arrive as regular media: open them any number of times and save them, and the sender does not see that you opened them. Applies only to media received after turning this on.")))
 
     entries.append(.header(id: id.count, section: .ghost, text: t("РЕЖИМ ПРИЗРАКА", "GHOST MODE"), badge: nil))
-    entries.append(.toggle(id: id.count, section: .ghost, settingName: .noReadReceipts, value: settings.ugramNoReadReceipts, text: t("Не отправлять отметки о прочтении", "Don't send read receipts"), enabled: true))
-    entries.append(.toggle(id: id.count, section: .ghost, settingName: .noTyping, value: settings.ugramNoTyping, text: t("Не показывать «печатает…»", "Don't send typing status"), enabled: true))
-    entries.append(.toggle(id: id.count, section: .ghost, settingName: .hideOnline, value: settings.ugramHideOnline, text: t("Не показывать «в сети»", "Don't send online status"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ghost, settingName: .noReadReceipts, value: ugram.bool("ugramNoReadReceipts", default: false), text: t("Не отправлять отметки о прочтении", "Don't send read receipts"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ghost, settingName: .noTyping, value: ugram.bool("ugramNoTyping", default: false), text: t("Не показывать «печатает…»", "Don't send typing status"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ghost, settingName: .hideOnline, value: ugram.bool("ugramHideOnline", default: false), text: t("Не показывать «в сети»", "Don't send online status"), enabled: true))
     entries.append(.toggle(id: id.count, section: .ghost, settingName: .storyStealthMode, value: settings.storyStealthMode, text: t("Скрытый просмотр историй", "Story stealth mode"), enabled: true))
     entries.append(.notice(id: id.count, section: .ghost, text: t("Пока отметки о прочтении выключены, чаты могут снова становиться непрочитанными после синхронизации. Отправка сообщения всё равно показывает вас в сети.", "While read receipts are off, chats may become unread again after a sync. Sending a message still makes you appear online.")))
 
@@ -94,19 +95,20 @@ public func ugramToolsController(context: AccountContext) -> ViewController {
         context: context,
         setBoolValue: { setting, value in
             let settings = SGSimpleSettings.shared
+            let ugram = UgramSettings.shared
             switch setting {
             case .saveDeletedMessages:
-                settings.ugramSaveDeletedMessages = value
+                ugram.setBool(value, for: "ugramSaveDeletedMessages")
             case .markDeletedMessages:
-                settings.ugramMarkDeletedMessages = value
+                ugram.setBool(value, for: "ugramMarkDeletedMessages")
             case .keepSelfDestructingMedia:
-                settings.ugramKeepSelfDestructingMedia = value
+                ugram.setBool(value, for: "ugramKeepSelfDestructingMedia")
             case .noReadReceipts:
-                settings.ugramNoReadReceipts = value
+                ugram.setBool(value, for: "ugramNoReadReceipts")
             case .noTyping:
-                settings.ugramNoTyping = value
+                ugram.setBool(value, for: "ugramNoTyping")
             case .hideOnline:
-                settings.ugramHideOnline = value
+                ugram.setBool(value, for: "ugramHideOnline")
             case .storyStealthMode:
                 settings.storyStealthMode = value
             case .hideStories:

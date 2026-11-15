@@ -1,4 +1,4 @@
-import SGSimpleSettings // MARK: Ugram
+import UgramSettings // MARK: Ugram
 import Foundation
 import Postbox
 import SwiftSignalKit
@@ -145,7 +145,7 @@ private func actionFromActivity(_ activity: PeerInputActivity?) -> Api.SendMessa
 private func requestActivity(postbox: Postbox, network: Network, accountPeerId: PeerId, peerId: PeerId, threadId: Int64?, activity: PeerInputActivity?) -> Signal<Void, NoError> {
     return postbox.transaction { transaction -> Signal<Void, NoError> in
         // MARK: Ugram
-        if SGSimpleSettings.shared.ugramNoTyping {
+        if UgramSettings.shared.bool("ugramNoTyping", default: false) {
             return .complete()
         }
         if let peer = transaction.getPeer(peerId) {

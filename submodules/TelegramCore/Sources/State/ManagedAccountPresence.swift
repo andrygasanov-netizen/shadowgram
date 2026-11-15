@@ -1,4 +1,4 @@
-import SGSimpleSettings // MARK: Ugram
+import UgramSettings // MARK: Ugram
 import Foundation
 internal import TelegramApi
 import Postbox
@@ -45,7 +45,7 @@ private final class AccountPresenceManagerImpl {
     
     private func updatePresence(_ isOnline: Bool) {
         // MARK: Ugram
-        let isOnline = isOnline && !SGSimpleSettings.shared.ugramHideOnline
+        let isOnline = isOnline && !UgramSettings.shared.bool("ugramHideOnline", default: false)
         let request: Signal<Api.Bool, MTRpcError>
         if isOnline {
             let timer = SignalKitTimer(timeout: 30.0, repeat: false, completion: { [weak self] in

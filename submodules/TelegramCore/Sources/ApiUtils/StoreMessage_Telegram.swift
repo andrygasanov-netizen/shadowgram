@@ -1,4 +1,4 @@
-import SGSimpleSettings // MARK: Ugram
+import UgramSettings // MARK: Ugram
 import Foundation
 import Postbox
 internal import TelegramApi
@@ -1279,7 +1279,7 @@ extension StoreMessage {
                         medias.append(mediaValue)
                     
                         // MARK: Ugram - self-destructing media is stored as regular media when the setting is on
-                        if let expirationTimer = expirationTimer, expirationTimer > 0, !SGSimpleSettings.shared.ugramKeepSelfDestructingMedia {
+                        if let expirationTimer = expirationTimer, expirationTimer > 0, !UgramSettings.shared.bool("ugramKeepSelfDestructingMedia", default: true) {
                             attributes.append(AutoclearTimeoutMessageAttribute(timeout: expirationTimer, countdownBeginTime: nil))
                             consumableContent = (true, false)
                         }

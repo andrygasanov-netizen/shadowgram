@@ -184,13 +184,6 @@ public class SGSimpleSettings {
         case videoControlsInFooter
         case combinedMediaViewer
         case hideAccountInNotifications
-        // MARK: Ugram
-        case ugramSaveDeletedMessages
-        case ugramMarkDeletedMessages
-        case ugramNoReadReceipts
-        case ugramNoTyping
-        case ugramHideOnline
-        case ugramKeepSelfDestructingMedia
     }
     
     public enum DownloadSpeedBoostValues: String, CaseIterable {
@@ -347,13 +340,6 @@ public class SGSimpleSettings {
         Keys.sendWithReturnKey.rawValue: false,
         Keys.videoControlsInFooter.rawValue: false,
         Keys.combinedMediaViewer.rawValue: false,
-        // MARK: Ugram
-        Keys.ugramSaveDeletedMessages.rawValue: true,
-        Keys.ugramMarkDeletedMessages.rawValue: true,
-        Keys.ugramNoReadReceipts.rawValue: false,
-        Keys.ugramNoTyping.rawValue: false,
-        Keys.ugramHideOnline.rawValue: false,
-        Keys.ugramKeepSelfDestructingMedia.rawValue: true,
     ]
     
     public static let groupDefaultValues: [String: Any] = [
@@ -656,25 +642,6 @@ public class SGSimpleSettings {
 
     @UserDefault(key: Keys.hideAccountInNotifications.rawValue, userDefaults: UserDefaults(suiteName: APP_GROUP_IDENTIFIER) ?? .standard)
     public var hideAccountInNotifications: Bool
-
-    // MARK: Ugram
-    @UserDefault(key: Keys.ugramSaveDeletedMessages.rawValue)
-    public var ugramSaveDeletedMessages: Bool
-
-    @UserDefault(key: Keys.ugramMarkDeletedMessages.rawValue)
-    public var ugramMarkDeletedMessages: Bool
-
-    @UserDefault(key: Keys.ugramNoReadReceipts.rawValue)
-    public var ugramNoReadReceipts: Bool
-
-    @UserDefault(key: Keys.ugramNoTyping.rawValue)
-    public var ugramNoTyping: Bool
-
-    @UserDefault(key: Keys.ugramHideOnline.rawValue)
-    public var ugramHideOnline: Bool
-
-    @UserDefault(key: Keys.ugramKeepSelfDestructingMedia.rawValue)
-    public var ugramKeepSelfDestructingMedia: Bool
 }
 
 extension SGSimpleSettings {

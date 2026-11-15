@@ -1,4 +1,4 @@
-import SGSimpleSettings // MARK: Ugram
+import UgramSettings // MARK: Ugram
 import Foundation
 import Postbox
 internal import TelegramApi
@@ -254,7 +254,7 @@ private func validatePeerReadState(network: Network, postbox: Postbox, stateMana
 
 private func pushPeerReadState(network: Network, postbox: Postbox, stateManager: AccountStateManager, peerId: PeerId, readState: PeerReadState) -> Signal<PeerReadState, PeerReadStateValidationError> {
     // MARK: Ugram
-    if SGSimpleSettings.shared.ugramNoReadReceipts {
+    if UgramSettings.shared.bool("ugramNoReadReceipts", default: false) {
         return .single(readState)
     }
     if peerId.namespace == Namespaces.Peer.SecretChat {
