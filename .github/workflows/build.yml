@@ -3,6 +3,9 @@ name: Build Ugram IPA
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: ugram-build
   cancel-in-progress: true
@@ -73,6 +76,40 @@ jobs:
             --outputBuildArtifactsPath=build/artifacts
           mv build/artifacts/Swiftgram.ipa build/artifacts/Ugram.ipa
           ls -la build/artifacts
+
+      - name: Change bundle identifier
+        run: |
+          set -e
+          # The official Telegram app uses ph.telegra.Telegraph; an IPA with the same identifier
+          # cannot be installed next to it. The IPA is re-signed by the user, so rewriting is safe.
+          OLD_ID="ph.telegra.Telegraph"
+          NEW_ID="app.ugram.ios"
+          WORK="$RUNNER_TEMP/ipa"
+          rm -rf "$WORK" && mkdir -p "$WORK"
+          unzip -q build/artifacts/Ugram.ipa -d "$WORK"
+          find "$WORK/Payload" -name Info.plist -maxdepth 4 | while read -r plist; do
+            current=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$plist" 2>/dev/null || true)
+            case "$current" in
+              "$OLD_ID"*)
+                updated="$NEW_ID${current#$OLD_ID}"
+                /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $updated" "$plist"
+                echo "$plist: $current -> $updated"
+                ;;
+            esac
+          done
+          rm build/artifacts/Ugram.ipa
+          (cd "$WORK" && zip -qry "$GITHUB_WORKSPACE/build/artifacts/Ugram.ipa" Payload)
+          ls -la build/artifacts
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest build/artifacts/Ugram.ipa \
+            --title "Ugram (build ${{ github.run_number }})" \
+            --notes "Unsigned IPA. Sign it yourself (ESign, Sideloadly, AltStore) before installing." \
+            --target "$GITHUB_SHA"
 
       - name: Trim bazel cache
         if: always()
