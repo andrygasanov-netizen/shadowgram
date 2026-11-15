@@ -15,6 +15,7 @@ import PeerNameColorItem
 import WalletContext
 
 enum SettingsSection: Int, CaseIterable {
+    case ugram // MARK: Ugram
     case edit
     case phone
     case accounts
@@ -43,6 +44,11 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         items[section] = []
     }
     
+    // MARK: Ugram
+    items[.ugram]!.append(PeerInfoScreenDisclosureItem(id: 0, text: "Ugram tools", icon: PresentationResourcesSettings.swiftgram, action: {
+        interaction.openSettings(.ugram)
+    }))
+
     let setPhotoTitle: String
     if let peer = data.peer, !peer.profileImageRepresentations.isEmpty {
         setPhotoTitle = presentationData.strings.Settings_ChangeProfilePhoto

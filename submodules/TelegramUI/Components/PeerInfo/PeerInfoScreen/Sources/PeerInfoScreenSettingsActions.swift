@@ -54,6 +54,8 @@ extension PeerInfoScreenNode {
             }
         }
         switch section {
+        case .ugram: // MARK: Ugram
+            self.controller?.push(ugramToolsController(context: self.context))
         case .swiftgram:
             self.controller?.push(sgSettingsController(context: self.context))
         case .swiftgramPro:

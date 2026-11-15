@@ -1,3 +1,4 @@
+import SGSimpleSettings // MARK: Ugram
 import Foundation
 import Postbox
 import SwiftSignalKit
@@ -274,6 +275,11 @@ extension ReplayContext {
     }
     
     func applyDeleteMessagesWithGlobalIds(_ ids: [Int32]) {
+        // MARK: Ugram
+        if SGSimpleSettings.shared.ugramSaveDeletedMessages {
+            let _ = ugramMarkMessagesAsDeleted(transaction: transaction, ids: transaction.messageIdsForGlobalIds(ids))
+            return
+        }
         var resourceIds: [MediaResourceId] = []
         transaction.deleteMessagesWithGlobalIds(ids, forEachMedia: { media in
             addMessageMediaResourceIdsToRemove(media: media, resourceIds: &resourceIds)
@@ -285,6 +291,14 @@ extension ReplayContext {
     }
     
     func applyDeleteMessages(_ ids: [MessageId]) {
+        // MARK: Ugram
+        var ids = ids
+        if SGSimpleSettings.shared.ugramSaveDeletedMessages {
+            ids = ugramMarkMessagesAsDeleted(transaction: transaction, ids: ids)
+            if ids.isEmpty {
+                return
+            }
+        }
         _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, manualAddMessageThreadStatsDifference: { id, add, remove in
             self.addMessageThreadStatsDifference(threadKey: id, remove: remove, addedMessagePeer: nil, addedMessageId: nil, isOutgoing: false)
         })

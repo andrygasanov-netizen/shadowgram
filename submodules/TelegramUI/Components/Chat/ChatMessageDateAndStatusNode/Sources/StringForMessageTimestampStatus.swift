@@ -1,3 +1,4 @@
+import SGSimpleSettings // MARK: Ugram
 import Foundation
 import TelegramCore
 import TelegramPresentationData
@@ -257,6 +258,11 @@ public func stringForMessageTimestampStatus(
             dateText = "\(authorTitle), \(dateText)"
         }
     }
-    
+
+    // MARK: Ugram
+    if message.isUgramDeleted && SGSimpleSettings.shared.ugramMarkDeletedMessages {
+        dateText = "🗑 \(dateText)"
+    }
+
     return dateText
 }
