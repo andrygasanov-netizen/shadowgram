@@ -57,6 +57,10 @@ jobs:
         run: |
           set -x
           BUILD_NUMBER=$((100000 + GITHUB_RUN_NUMBER))
+          # The bundled fake provisioning profiles are expired; the IPA is re-signed by the user anyway.
+          PLISTTOOL=build-system/bazel-rules/rules_apple/tools/plisttool/plisttool.py
+          sed -i '' "s/expire = self._profile_metadata.get('ExpirationDate')/expire = None/" "$PLISTTOOL"
+          grep -n "expire = None" "$PLISTTOOL"
           python3 build-system/Make/ImportCertificates.py --path build-system/fake-codesigning/certs
           python3 -u build-system/Make/Make.py \
             --overrideXcodeVersion \
@@ -66,7 +70,6 @@ jobs:
             --codesigningInformationPath=build-system/fake-codesigning \
             --configuration=release_arm64 \
             --buildNumber="$BUILD_NUMBER" \
-            --disableProvisioningProfiles \
             --outputBuildArtifactsPath=build/artifacts
           mv build/artifacts/Swiftgram.ipa build/artifacts/Ugram.ipa
           ls -la build/artifacts
