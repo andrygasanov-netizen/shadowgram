@@ -190,6 +190,7 @@ public class SGSimpleSettings {
         case ugramNoReadReceipts
         case ugramNoTyping
         case ugramHideOnline
+        case ugramKeepSelfDestructingMedia
     }
     
     public enum DownloadSpeedBoostValues: String, CaseIterable {
@@ -352,6 +353,7 @@ public class SGSimpleSettings {
         Keys.ugramNoReadReceipts.rawValue: false,
         Keys.ugramNoTyping.rawValue: false,
         Keys.ugramHideOnline.rawValue: false,
+        Keys.ugramKeepSelfDestructingMedia.rawValue: true,
     ]
     
     public static let groupDefaultValues: [String: Any] = [
@@ -670,6 +672,9 @@ public class SGSimpleSettings {
 
     @UserDefault(key: Keys.ugramHideOnline.rawValue)
     public var ugramHideOnline: Bool
+
+    @UserDefault(key: Keys.ugramKeepSelfDestructingMedia.rawValue)
+    public var ugramKeepSelfDestructingMedia: Bool
 }
 
 extension SGSimpleSettings {

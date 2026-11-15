@@ -22,6 +22,7 @@ private enum UgramSection: Int32, SGItemListSection {
 private enum UgramBoolSetting: String {
     case saveDeletedMessages
     case markDeletedMessages
+    case keepSelfDestructingMedia
     case noReadReceipts
     case noTyping
     case hideOnline
@@ -57,6 +58,9 @@ private func ugramEntries(presentationData: PresentationData) -> [UgramEntry] {
     entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .saveDeletedMessages, value: settings.ugramSaveDeletedMessages, text: t("Сохранять удалённые сообщения", "Keep deleted messages"), enabled: true))
     entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .markDeletedMessages, value: settings.ugramMarkDeletedMessages, text: t("Помечать значком 🗑", "Mark with 🗑"), enabled: true))
     entries.append(.notice(id: id.count, section: .deletedMessages, text: t("Сообщения, которые собеседник удалил у всех, остаются в чате на этом устройстве и помечаются корзиной рядом со временем. Сохраняется только то, что уже было загружено в приложение. Секретные чаты и самоуничтожающиеся сообщения не сохраняются. Чтобы убрать такое сообщение, удалите его вручную.", "Messages deleted for everyone stay in the chat on this device and get a bin mark next to the time. Only messages that were already loaded by the app can be kept. Secret chats and self-destructing messages are not kept. Delete such a message manually to get rid of it.")))
+
+    entries.append(.toggle(id: id.count, section: .deletedMessages, settingName: .keepSelfDestructingMedia, value: settings.ugramKeepSelfDestructingMedia, text: t("Сохранять исчезающие фото и видео", "Keep self-destructing photos and videos"), enabled: true))
+    entries.append(.notice(id: id.count, section: .deletedMessages, text: t("Одноразовые и исчезающие фото, видео и голосовые приходят как обычные: их можно открывать сколько угодно раз и сохранять, а отправитель не видит, что вы их открыли. Действует только на медиа, полученные после включения.", "View-once and self-destructing photos, videos and voice messages arrive as regular media: open them any number of times and save them, and the sender does not see that you opened them. Applies only to media received after turning this on.")))
 
     entries.append(.header(id: id.count, section: .ghost, text: t("РЕЖИМ ПРИЗРАКА", "GHOST MODE"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ghost, settingName: .noReadReceipts, value: settings.ugramNoReadReceipts, text: t("Не отправлять отметки о прочтении", "Don't send read receipts"), enabled: true))
@@ -95,6 +99,8 @@ public func ugramToolsController(context: AccountContext) -> ViewController {
                 settings.ugramSaveDeletedMessages = value
             case .markDeletedMessages:
                 settings.ugramMarkDeletedMessages = value
+            case .keepSelfDestructingMedia:
+                settings.ugramKeepSelfDestructingMedia = value
             case .noReadReceipts:
                 settings.ugramNoReadReceipts = value
             case .noTyping:
