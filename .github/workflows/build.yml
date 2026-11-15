@@ -48,6 +48,7 @@ jobs:
               config = json.load(f)
           config['api_id'] = os.environ['API_ID']
           config['api_hash'] = os.environ['API_HASH']
+          config.setdefault('sg_config', '')
           with open(os.path.expanduser('~/ugram-configuration.json'), 'w') as f:
               json.dump(config, f)
           EOF
