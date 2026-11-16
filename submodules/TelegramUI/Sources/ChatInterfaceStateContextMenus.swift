@@ -1597,6 +1597,37 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             sgActions.append(showJsonAction)
         }
         //
+
+        // MARK: Ugram - earlier versions of an edited message.
+        let ugramEditHistory = message.ugramEditHistory
+        if !ugramEditHistory.isEmpty {
+            let isRussian = chatPresentationInterfaceState.strings.baseLanguageCode == "ru"
+            actions.append(.action(ContextMenuActionItem(text: isRussian ? "История правок" : "Edit history", icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Edit"), color: theme.actionSheet.primaryTextColor)
+            }, action: { c, _ in
+                c?.dismiss(completion: {
+                    let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+                    var parts: [String] = []
+                    for version in ugramEditHistory.suffix(10).reversed() {
+                        let date = stringForMediumDate(timestamp: version.date, strings: presentationData.strings, dateTimeFormat: presentationData.dateTimeFormat)
+                        var text = version.text
+                        if text.count > 400 {
+                            text = String(text.prefix(400)) + "…"
+                        }
+                        parts.append("\(date)\n\(text)")
+                    }
+                    let title = isRussian ? "История правок (\(ugramEditHistory.count))" : "Edit history (\(ugramEditHistory.count))"
+                    controllerInteraction.presentController(textAlertController(
+                        context: context,
+                        title: title,
+                        text: parts.joined(separator: "\n\n"),
+                        actions: [
+                            TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_OK, action: {})
+                        ]
+                    ), nil)
+                })
+            })))
+        }
         
         var threadId: Int64?
         var threadMessageCount: Int = 0

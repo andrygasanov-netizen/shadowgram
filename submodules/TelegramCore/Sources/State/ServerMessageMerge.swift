@@ -36,6 +36,12 @@ func mergedServerMessageUpdate(previous previousMessage: Message, updated messag
         }
     }
 
+    // MARK: Ugram - remember the text this edit replaces.
+    updatedAttributes.removeAll(where: { $0 is UgramEditHistoryMessageAttribute })
+    if let editHistory = ugramEditHistoryAttribute(previous: previousMessage, updatedText: message.text) {
+        updatedAttributes.append(editHistory)
+    }
+
     var updatedMedia = message.media
     if let previousPaidContent = previousMessage.media.first(where: { $0 is TelegramMediaPaidContent }) as? TelegramMediaPaidContent, case .full = previousPaidContent.extendedMedia.first {
         updatedMedia = previousMessage.media

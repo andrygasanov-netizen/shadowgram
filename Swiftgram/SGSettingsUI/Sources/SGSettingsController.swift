@@ -173,6 +173,7 @@ private enum SGBoolSetting: String {
     case ugramHideOnline
     case ugramDisableAutoDownload
     case ugramHeartEffect
+    case ugramEditHistory
     case ugramAutoSticker
 }
 
@@ -250,6 +251,8 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramSaveDeletedMessages, value: ugram.bool("ugramSaveDeletedMessages", default: true), text: t("Удалённые сообщения", "Deleted messages"), enabled: true))
     entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramMarkDeletedMessages, value: ugram.bool("ugramMarkDeletedMessages", default: true), text: t("Метка 🗑 у удалённых", "Mark deleted with 🗑"), enabled: ugram.bool("ugramSaveDeletedMessages", default: true)))
     entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Сообщения, которые собеседник удалил у всех, остаются в чате на этом устройстве с меткой 🗑. Сохраняется только то, что уже было загружено в приложение. Секретные чаты не сохраняются.", "Messages deleted for everyone stay in the chat on this device with a 🗑 mark. Only messages already loaded by the app are kept. Secret chats are not kept.")))
+    entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramEditHistory, value: ugram.bool("ugramEditHistory", default: true), text: t("История правок", "Edit history"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Зажмите отредактированное сообщение и выберите «История правок», чтобы увидеть прошлые версии. Запоминаются правки, сделанные после установки Ugram, пока приложение получало обновления.", "Long-press an edited message and choose \"Edit history\" to see earlier versions. Edits made after installing Ugram, while the app was receiving updates, are remembered.")))
     entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramKeepSelfDestructingMedia, value: ugram.bool("ugramKeepSelfDestructingMedia", default: true), text: t("Сохранять исчезающие медиа", "Keep self-destructing media"), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Одноразовые фото, видео и голосовые приходят как обычные: их можно открывать сколько угодно раз и сохранять. Действует на медиа, полученные после включения.", "View-once photos, videos and voice messages arrive as regular media: open and save them any number of times. Applies to media received after turning this on.")))
 
@@ -674,6 +677,8 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             UgramSettings.shared.setBool(value, for: "ugramHideOnline")
         case .ugramDisableAutoDownload:
             UgramSettings.shared.setBool(value, for: "ugramDisableAutoDownload")
+        case .ugramEditHistory:
+            UgramSettings.shared.setBool(value, for: "ugramEditHistory")
         case .ugramHeartEffect:
             UgramSettings.shared.setBool(value, for: "ugramHeartEffect")
         case .ugramAutoSticker:

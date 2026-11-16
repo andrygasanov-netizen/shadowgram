@@ -123,6 +123,14 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
             if previous.isEmpty {
                 return
             }
+            // MARK: Ugram - local-only attributes survive a refresh from the server.
+            for attribute in previous {
+                if attribute is UgramEditHistoryMessageAttribute, !updated.contains(where: { $0 is UgramEditHistoryMessageAttribute }) {
+                    updated.append(attribute)
+                } else if attribute is UgramDeletedMessageAttribute, !updated.contains(where: { $0 is UgramDeletedMessageAttribute }) {
+                    updated.append(attribute)
+                }
+            }
             var audioTranscription: AudioTranscriptionMessageAttribute?
             for attribute in previous {
                 if let attribute = attribute as? AudioTranscriptionMessageAttribute {
