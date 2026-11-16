@@ -1629,6 +1629,18 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             })))
         }
         
+        // MARK: Ugram - kept view-once media: tell the sender it was opened.
+        if let ugramSelfDestruct = message.ugramSelfDestruct, !ugramSelfDestruct.viewed, message.effectivelyIncoming(context.account.peerId) {
+            let isRussian = chatPresentationInterfaceState.strings.baseLanguageCode == "ru"
+            actions.append(.action(ContextMenuActionItem(text: isRussian ? "Пометить просмотренным 🔥" : "Mark as viewed 🔥", icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Eye"), color: theme.actionSheet.primaryTextColor)
+            }, action: { c, _ in
+                c?.dismiss(completion: {
+                    let _ = ugramMarkSelfDestructViewed(account: context.account, messageId: message.id).startStandalone()
+                })
+            })))
+        }
+        
         var threadId: Int64?
         var threadMessageCount: Int = 0
         if case .peer = chatPresentationInterfaceState.chatLocation, let channel = chatPresentationInterfaceState.renderedPeer?.peer as? TelegramChannel, case .group = channel.info {

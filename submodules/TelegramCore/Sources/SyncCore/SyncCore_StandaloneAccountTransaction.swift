@@ -129,6 +129,15 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
                     updated.append(attribute)
                 } else if attribute is UgramDeletedMessageAttribute, !updated.contains(where: { $0 is UgramDeletedMessageAttribute }) {
                     updated.append(attribute)
+                } else if let attribute = attribute as? UgramSelfDestructMessageAttribute {
+                    // Keep the "viewed" flag, and the marker itself once the server stops reporting the timer.
+                    if let index = updated.firstIndex(where: { $0 is UgramSelfDestructMessageAttribute }) {
+                        if attribute.viewed {
+                            updated[index] = attribute
+                        }
+                    } else {
+                        updated.append(attribute)
+                    }
                 }
             }
             var audioTranscription: AudioTranscriptionMessageAttribute?

@@ -263,6 +263,9 @@ public func stringForMessageTimestampStatus(
     if message.isUgramDeleted && UgramSettings.shared.bool("ugramMarkDeletedMessages", default: true) {
         dateText = "🗑 \(dateText)"
     }
+    if let selfDestruct = message.ugramSelfDestruct {
+        dateText = selfDestruct.viewed ? "👁 \(dateText)" : "🔥 \(dateText)"
+    }
 
     return dateText
 }

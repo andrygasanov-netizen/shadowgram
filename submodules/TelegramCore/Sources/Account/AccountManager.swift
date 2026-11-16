@@ -227,6 +227,7 @@ private var declaredEncodables: Void = {
     declareEncodable(QuickTranslationMessageAttribute.self, f: { QuickTranslationMessageAttribute(decoder: $0) }) // MARK: Swiftgram
     declareEncodable(UgramDeletedMessageAttribute.self, f: { UgramDeletedMessageAttribute(decoder: $0) }) // MARK: Ugram
     declareEncodable(UgramEditHistoryMessageAttribute.self, f: { UgramEditHistoryMessageAttribute(decoder: $0) }) // MARK: Ugram
+    declareEncodable(UgramSelfDestructMessageAttribute.self, f: { UgramSelfDestructMessageAttribute(decoder: $0) }) // MARK: Ugram
     declareEncodable(SynchronizeAutosaveItemOperation.self, f: { SynchronizeAutosaveItemOperation(decoder: $0) })
     declareEncodable(TelegramMediaStory.self, f: { TelegramMediaStory(decoder: $0) })
     declareEncodable(SynchronizeViewStoriesOperation.self, f: { SynchronizeViewStoriesOperation(decoder: $0) })

@@ -1279,9 +1279,13 @@ extension StoreMessage {
                         medias.append(mediaValue)
                     
                         // MARK: Ugram - self-destructing media is stored as regular media when the setting is on
-                        if let expirationTimer = expirationTimer, expirationTimer > 0, !UgramSettings.shared.bool("ugramKeepSelfDestructingMedia", default: true) {
-                            attributes.append(AutoclearTimeoutMessageAttribute(timeout: expirationTimer, countdownBeginTime: nil))
-                            consumableContent = (true, false)
+                        if let expirationTimer = expirationTimer, expirationTimer > 0 {
+                            if !UgramSettings.shared.bool("ugramKeepSelfDestructingMedia", default: true) {
+                                attributes.append(AutoclearTimeoutMessageAttribute(timeout: expirationTimer, countdownBeginTime: nil))
+                                consumableContent = (true, false)
+                            } else {
+                                attributes.append(UgramSelfDestructMessageAttribute(timeout: expirationTimer, viewed: false))
+                            }
                         }
                         
                         if let nonPremium = nonPremium, nonPremium {
