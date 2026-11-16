@@ -23,7 +23,7 @@ public func ugramMarkSelfDestructViewed(account: Account, messageId: MessageId) 
                 if let result {
                     switch result {
                     case let .affectedMessages(affectedMessagesData):
-                        stateManager.addUpdateGroups([.updatePts(pts: affectedMessagesData.pts, ptsCount: affectedMessagesData.ptsCount)])
+                        stateManager?.addUpdateGroups([.updatePts(pts: affectedMessagesData.pts, ptsCount: affectedMessagesData.ptsCount)])
                     }
                 }
             }
