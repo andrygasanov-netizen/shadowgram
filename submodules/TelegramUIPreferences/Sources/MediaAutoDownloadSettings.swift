@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import SwiftSignalKit
 import TelegramCore
+import UgramSettings // MARK: Ugram
 
 public enum MediaAutoDownloadNetworkType {
     case wifi
@@ -574,6 +575,10 @@ public func shouldDownloadMediaAutomatically(settings: MediaAutoDownloadSettings
     if case let .file(file)? = media, file.isSticker {
         return true
     }
+    // MARK: Ugram - "disable auto-download" switch; the user's own local media still shows up.
+    if UgramSettings.shared.bool("ugramDisableAutoDownload", default: false), media?.id?.namespace != Namespaces.Media.LocalFile {
+        return false
+    }
     
     var peerType = peerType
     if case .group = peerType, let authorPeerId = authorPeerId, contactsPeerIds.contains(authorPeerId) {
@@ -604,6 +609,9 @@ public func shouldDownloadMediaAutomatically(settings: MediaAutoDownloadSettings
 public func shouldPredownloadMedia(settings: MediaAutoDownloadSettings, peerType: MediaAutoDownloadPeerType, networkType: MediaAutoDownloadNetworkType, media: EngineMedia) -> Bool {
     if #available(iOSApplicationExtension 10.3, *) {
         if (networkType == .cellular && !settings.cellular.enabled) || (networkType == .wifi && !settings.wifi.enabled) {
+            return false
+        }
+        if UgramSettings.shared.bool("ugramDisableAutoDownload", default: false) { // MARK: Ugram
             return false
         }
         

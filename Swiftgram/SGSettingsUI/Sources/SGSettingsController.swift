@@ -3,6 +3,7 @@ import SGLogging
 import SGSimpleSettings
 import SGStrings
 import SGAPIToken
+import UgramSettings // MARK: Ugram
 
 import SGItemListUI
 import Foundation
@@ -42,6 +43,59 @@ private enum SGControllerSection: Int32, SGItemListSection {
     case contextMenu
     case accountColors
     case other
+    // MARK: Ugram
+    case ugramDeleted
+    case ugramGhost
+    case ugramMedia
+}
+
+// MARK: Ugram - pages of Ugram tools; each shows a subset of the sections above.
+public enum UgramSettingsPage: Int {
+    case chats
+    case ghost
+    case interface
+    case messages
+    case media
+    case calls
+    case all
+
+    fileprivate var sections: Set<SGControllerSection>? {
+        switch self {
+        case .chats:
+            return [.ugramDeleted, .chatList, .profiles, .contextMenu]
+        case .ghost:
+            return [.ugramGhost]
+        case .interface:
+            return [.trending, .tabs, .folders, .stories, .accountColors, .other]
+        case .messages:
+            return [.translation, .voiceMessages, .stickers]
+        case .media:
+            return [.ugramMedia, .photo, .videoNotes]
+        case .calls:
+            return [.calls]
+        case .all:
+            return nil
+        }
+    }
+
+    public func title(isRussian: Bool) -> String {
+        switch self {
+        case .chats:
+            return isRussian ? "Чаты" : "Chats"
+        case .ghost:
+            return isRussian ? "Режим призрака" : "Ghost mode"
+        case .interface:
+            return isRussian ? "Интерфейс" : "Interface"
+        case .messages:
+            return isRussian ? "Сообщения и перевод" : "Messages & translation"
+        case .media:
+            return isRussian ? "Медиа и загрузки" : "Media & downloads"
+        case .calls:
+            return isRussian ? "Звонки" : "Calls"
+        case .all:
+            return isRussian ? "Все настройки" : "All settings"
+        }
+    }
 }
 
 private enum SGBoolSetting: String {
@@ -108,6 +162,14 @@ private enum SGBoolSetting: String {
     case videoControlsInFooter
     case combinedMediaViewer
     case hideAccountInNotifications
+    // MARK: Ugram
+    case ugramSaveDeletedMessages
+    case ugramMarkDeletedMessages
+    case ugramKeepSelfDestructingMedia
+    case ugramNoReadReceipts
+    case ugramNoTyping
+    case ugramHideOnline
+    case ugramDisableAutoDownload
 }
 
 private enum SGOneFromManySetting: String {
@@ -142,7 +204,7 @@ private struct SGSettingsControllerState: Equatable {
 
 private typealias SGControllerEntry = SGItemListUIEntry<SGControllerSection, SGBoolSetting, SGSliderSetting, SGOneFromManySetting, SGDisclosureLink, AnyHashable>
 
-private func SGControllerEntries(presentationData: PresentationData, callListSettings: CallListSettings, experimentalUISettings: ExperimentalUISettings, appConfiguration: AppConfiguration, nameColors: PeerNameColors, state: SGSettingsControllerState) -> [SGControllerEntry] {
+private func SGControllerEntries(presentationData: PresentationData, callListSettings: CallListSettings, experimentalUISettings: ExperimentalUISettings, appConfiguration: AppConfiguration, nameColors: PeerNameColors, state: SGSettingsControllerState, page: UgramSettingsPage) -> [SGControllerEntry] {
     
     let lang = presentationData.strings.baseLanguageCode
     let strings = presentationData.strings
@@ -152,6 +214,30 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     let id = SGItemListCounter()
     
     entries.append(.searchInput(id: id.count, section: .search, title: NSAttributedString(string: "🔍"), text: state.searchQuery ?? "", placeholder: strings.Common_Search))
+
+    // MARK: Ugram
+    let isRussian = lang == "ru"
+    let t: (String, String) -> String = { ru, en in
+        return isRussian ? ru : en
+    }
+    let ugram = UgramSettings.shared
+    entries.append(.header(id: id.count, section: .ugramDeleted, text: t("УДАЛЁННЫЕ СООБЩЕНИЯ", "DELETED MESSAGES"), badge: nil))
+    entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramSaveDeletedMessages, value: ugram.bool("ugramSaveDeletedMessages", default: true), text: t("Удалённые сообщения", "Deleted messages"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramMarkDeletedMessages, value: ugram.bool("ugramMarkDeletedMessages", default: true), text: t("Метка 🗑 у удалённых", "Mark deleted with 🗑"), enabled: ugram.bool("ugramSaveDeletedMessages", default: true)))
+    entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Сообщения, которые собеседник удалил у всех, остаются в чате на этом устройстве с меткой 🗑. Сохраняется только то, что уже было загружено в приложение. Секретные чаты не сохраняются.", "Messages deleted for everyone stay in the chat on this device with a 🗑 mark. Only messages already loaded by the app are kept. Secret chats are not kept.")))
+    entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramKeepSelfDestructingMedia, value: ugram.bool("ugramKeepSelfDestructingMedia", default: true), text: t("Сохранять исчезающие медиа", "Keep self-destructing media"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Одноразовые фото, видео и голосовые приходят как обычные: их можно открывать сколько угодно раз и сохранять. Действует на медиа, полученные после включения.", "View-once photos, videos and voice messages arrive as regular media: open and save them any number of times. Applies to media received after turning this on.")))
+
+    entries.append(.header(id: id.count, section: .ugramGhost, text: t("РЕЖИМ ПРИЗРАКА", "GHOST MODE"), badge: nil))
+    entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramNoReadReceipts, value: ugram.bool("ugramNoReadReceipts", default: false), text: t("Не отправлять «прочитано»", "Don't send read receipts"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramNoTyping, value: ugram.bool("ugramNoTyping", default: false), text: t("Не показывать «печатает…»", "Don't send typing status"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramHideOnline, value: ugram.bool("ugramHideOnline", default: false), text: t("Не показывать «в сети»", "Don't send online status"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .storyStealthMode, value: SGSimpleSettings.shared.storyStealthMode, text: t("Скрытый просмотр историй", "Story stealth mode"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramGhost, text: t("Пока «прочитано» выключено, чаты могут снова становиться непрочитанными после синхронизации. Отправка сообщения всё равно показывает вас в сети.", "While read receipts are off, chats may become unread again after a sync. Sending a message still makes you appear online.")))
+
+    entries.append(.header(id: id.count, section: .ugramMedia, text: t("АВТОЗАГРУЗКА", "AUTO-DOWNLOAD"), badge: nil))
+    entries.append(.toggle(id: id.count, section: .ugramMedia, settingName: .ugramDisableAutoDownload, value: ugram.bool("ugramDisableAutoDownload", default: false), text: t("Отключить автозагрузку", "Disable auto-download"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramMedia, text: t("Фото, видео и файлы не скачиваются сами ни по мобильной сети, ни по Wi-Fi: нажмите на медиа, чтобы загрузить. Стикеры загружаются как обычно.", "Photos, videos and files are not downloaded by themselves on cellular or Wi-Fi: tap media to load it. Stickers load as usual.")))
     
     
     if SGSimpleSettings.shared.canUseNY {
@@ -335,10 +421,15 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.notice(id: id.count, section: .other, text: i18n("Settings.HidePhoneInSettingsUI.Notice", lang)))
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideAccountInNotifications, value: SGSimpleSettings.shared.hideAccountInNotifications, text: i18n("Settings.HideAccountInNotifications", lang), enabled: true))
     
+    // MARK: Ugram
+    if let sections = page.sections {
+        let sectionIds = Set(sections.map { $0.rawValue })
+        return entries.filter { sectionIds.contains($0.section) }
+    }
     return filterSGItemListUIEntrires(entries: entries, by: state.searchQuery)
 }
 
-public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int? = nil*/) -> ViewController {
+public func sgSettingsController(context: AccountContext, page: UgramSettingsPage = .all/*, focusOnItemTag: Int? = nil*/) -> ViewController {
     var presentControllerImpl: ((ViewController, ViewControllerPresentationArguments?) -> Void)?
     var pushControllerImpl: ((ViewController) -> Void)?
     var presentOneFromManyImpl: ((SGOneFromManySetting, [SGOneFromManyOption]) -> Void)?
@@ -535,6 +626,22 @@ public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int?
         case .hideAccountInNotifications:
             SGSimpleSettings.shared.hideAccountInNotifications = value
             SGSimpleSettings.shared.synchronizeShared()
+        // MARK: Ugram
+        case .ugramSaveDeletedMessages:
+            UgramSettings.shared.setBool(value, for: "ugramSaveDeletedMessages")
+            simplePromise.set(true) // "Mark deleted" depends on it
+        case .ugramMarkDeletedMessages:
+            UgramSettings.shared.setBool(value, for: "ugramMarkDeletedMessages")
+        case .ugramKeepSelfDestructingMedia:
+            UgramSettings.shared.setBool(value, for: "ugramKeepSelfDestructingMedia")
+        case .ugramNoReadReceipts:
+            UgramSettings.shared.setBool(value, for: "ugramNoReadReceipts")
+        case .ugramNoTyping:
+            UgramSettings.shared.setBool(value, for: "ugramNoTyping")
+        case .ugramHideOnline:
+            UgramSettings.shared.setBool(value, for: "ugramHideOnline")
+        case .ugramDisableAutoDownload:
+            UgramSettings.shared.setBool(value, for: "ugramDisableAutoDownload")
         }
     }, updateSliderValue: { setting, value in
         switch (setting) {
@@ -722,9 +829,9 @@ public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int?
         let callListSettings: CallListSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.callListSettings]?.get(CallListSettings.self) ?? CallListSettings.defaultSettings
         let experimentalUISettings: ExperimentalUISettings = sharedData.entries[ApplicationSpecificSharedDataKeys.experimentalUISettings]?.get(ExperimentalUISettings.self) ?? ExperimentalUISettings.defaultSettings
         
-        let entries = SGControllerEntries(presentationData: presentationData, callListSettings: callListSettings, experimentalUISettings: experimentalUISettings, appConfiguration: appConfiguration, nameColors: PeerNameColors.with(availableReplyColors: availableReplyColors, availableProfileColors: availableProfileColors), state: state)
+        let entries = SGControllerEntries(presentationData: presentationData, callListSettings: callListSettings, experimentalUISettings: experimentalUISettings, appConfiguration: appConfiguration, nameColors: PeerNameColors.with(availableReplyColors: availableReplyColors, availableProfileColors: availableProfileColors), state: state, page: page)
         
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Swiftgram"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(page.title(isRussian: presentationData.strings.baseLanguageCode == "ru")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         
         // TODO(swiftgram): focusOnItemTag support
         /* var index = 0

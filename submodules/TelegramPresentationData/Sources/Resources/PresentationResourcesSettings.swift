@@ -116,8 +116,56 @@ let colorPurple = UIColor(rgb: 0xAF52DE)
 let colorGray = UIColor(rgb: 0x8E8E93)
 let colorViolet = UIColor(rgb: 0x5E5CE6)
 
+// MARK: Ugram - the Ugram Tools row icon: the app icon's "U" with a spark on a green gradient.
+private func renderUgramSettingsIcon() -> UIImage? {
+    return generateImage(CGSize(width: 30.0, height: 30.0), rotatedContext: { size, context in
+        let bounds = CGRect(origin: CGPoint(), size: size)
+        context.clear(bounds)
+
+        context.saveGState()
+        context.addPath(UIBezierPath(roundedRect: bounds, cornerRadius: 8.0).cgPath)
+        context.clip()
+        var locations: [CGFloat] = [0.0, 1.0]
+        let colors: [CGColor] = [UIColor(rgb: 0x4DF2A6).cgColor, UIColor(rgb: 0x05736A).cgColor]
+        if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: &locations) {
+            context.drawLinearGradient(gradient, start: CGPoint(x: 0.0, y: 0.0), end: CGPoint(x: 0.0, y: size.height), options: CGGradientDrawingOptions())
+        }
+
+        // The app icon glyph is drawn on a 1080 canvas; map it into the 30pt square.
+        let scale = size.width / 1080.0
+        context.scaleBy(x: scale, y: scale)
+        context.setFillColor(UIColor.white.cgColor)
+
+        let u = UIBezierPath()
+        u.move(to: CGPoint(x: 300.0, y: 613.0))
+        u.addLine(to: CGPoint(x: 300.0, y: 303.0))
+        u.addArc(withCenter: CGPoint(x: 375.0, y: 303.0), radius: 75.0, startAngle: .pi, endAngle: 0.0, clockwise: true)
+        u.addLine(to: CGPoint(x: 450.0, y: 613.0))
+        u.addArc(withCenter: CGPoint(x: 540.0, y: 613.0), radius: 90.0, startAngle: .pi, endAngle: 0.0, clockwise: false)
+        u.addLine(to: CGPoint(x: 630.0, y: 303.0))
+        u.addArc(withCenter: CGPoint(x: 705.0, y: 303.0), radius: 75.0, startAngle: .pi, endAngle: 0.0, clockwise: true)
+        u.addLine(to: CGPoint(x: 780.0, y: 613.0))
+        u.addArc(withCenter: CGPoint(x: 540.0, y: 613.0), radius: 240.0, startAngle: 0.0, endAngle: .pi, clockwise: true)
+        u.close()
+        context.addPath(u.cgPath)
+        context.fillPath()
+
+        let spark = UIBezierPath()
+        spark.move(to: CGPoint(x: 880.0, y: 100.0))
+        spark.addQuadCurve(to: CGPoint(x: 950.0, y: 170.0), controlPoint: CGPoint(x: 890.0, y: 160.0))
+        spark.addQuadCurve(to: CGPoint(x: 880.0, y: 240.0), controlPoint: CGPoint(x: 890.0, y: 180.0))
+        spark.addQuadCurve(to: CGPoint(x: 810.0, y: 170.0), controlPoint: CGPoint(x: 870.0, y: 180.0))
+        spark.addQuadCurve(to: CGPoint(x: 880.0, y: 100.0), controlPoint: CGPoint(x: 870.0, y: 160.0))
+        spark.close()
+        context.addPath(spark.cgPath)
+        context.fillPath()
+        context.restoreGState()
+    })
+}
+
 public struct PresentationResourcesSettings {
-    public static let swiftgram = renderSettingsIcon(name: "SwiftgramSettings", scaleFactor: 30.0 / 512.0)
+    public static let ugram = renderUgramSettingsIcon() // MARK: Ugram
+    public static let swiftgram =renderSettingsIcon(name: "SwiftgramSettings", scaleFactor: 30.0 / 512.0)
     public static let swiftgramPro = renderSettingsIcon(name: "SwiftgramPro", scaleFactor: 30.0 / 256.0)
     public static let proxy = renderSettingsIcon(name: "Item List/Icons/Proxy", backgroundColors: [colorGreen])
     public static let savedMessages = renderSettingsIcon(name: "Item List/Icons/SavedMessages", backgroundColors: [colorBlue])

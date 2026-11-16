@@ -45,7 +45,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     }
     
     // MARK: Ugram
-    items[.ugram]!.append(PeerInfoScreenDisclosureItem(id: 0, text: "Ugram tools", icon: PresentationResourcesSettings.swiftgram, action: {
+    items[.ugram]!.append(PeerInfoScreenDisclosureItem(id: 0, text: "Ugram Tools", icon: PresentationResourcesSettings.ugram, action: {
         interaction.openSettings(.ugram)
     }))
 
@@ -214,7 +214,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     
     // MARK: Swiftgram
     let sgWebSettings = context.currentAppConfiguration.with({ $0 }).sgWebSettings
-    items[.swiftgram]!.append(contentsOf: sgPeerInfoSettingsItems(context: context, paymentsEnabled: sgWebSettings.global.paymentsEnabled, presentationData: presentationData, interaction: interaction))
+    // MARK: Ugram - the Swiftgram and Swiftgram Pro rows are gone; their settings live in Ugram Tools.
     //
 
     var appIndex = 1000

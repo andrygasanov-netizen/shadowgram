@@ -16,6 +16,7 @@ swift_library(
     deps = [
         "//submodules/TelegramCore:TelegramCore",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
+        "//Swiftgram/UgramSettings:UgramSettings",
     ],
     visibility = [
         "//visibility:public",
