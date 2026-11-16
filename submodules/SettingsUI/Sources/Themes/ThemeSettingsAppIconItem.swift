@@ -391,50 +391,50 @@ class ThemeSettingsAppIconItemNode: ListViewItemNode, ItemListItemNode {
                                     name = item.strings.Appearance_AppIconDefault
                                     bordered = false
                                 case "SGBlack":
-                                    name = "Black"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Чёрная" : "Black")
                                     bordered = false
                                 case "SGLegacy":
-                                    name = "Legacy"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Океан" : "Ocean")
                                     bordered = false
                                 case "SGInverted":
-                                    name = "Inverted"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Инверсия" : "Inverted")
                                 case "SGWhite":
-                                    name = "White"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Белая" : "White")
                                 case "SGNight":
-                                    name = "Night"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Ночь" : "Night")
                                     bordered = false
                                 case "SGSky":
-                                    name = "Sky"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Небо" : "Sky")
                                     bordered = false
                                 case "SGTitanium":
-                                    name = "Titanium"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Титан" : "Titanium")
                                     bordered = false
                                 case "SGNeon":
-                                    name = "Neon"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Неон" : "Neon")
                                     bordered = false
                                 case "SGNeonBlue":
-                                    name = "Neon Blue"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Синий неон" : "Neon Blue")
                                     bordered = false
                                 case "SGGlass":
-                                    name = "Glass"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Фиолетовая" : "Violet")
                                     bordered = false
                                 case "SGSparkling":
-                                    name = "Sparkling"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Розовая" : "Pink")
                                     bordered = false
                                 case "SGBeta":
                                     name = "β Beta"
                                     bordered = false
                                 case "SGPro":
-                                    name = "Pro"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Красная" : "Red")
                                     bordered = false
                                 case "SGGold":
-                                    name = "Gold"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Золото" : "Gold")
                                     bordered = false
                                 case "SGDucky":
                                     name = "Ducky"
                                     bordered = false
                                 case "SGDay":
-                                    name = "Day"
+                                    name = (item.strings.baseLanguageCode == "ru" ? "Закат" : "Sunset")
                                     bordered = false
                                 case "BlueIcon":
                                     name = item.strings.Appearance_AppIconDefault

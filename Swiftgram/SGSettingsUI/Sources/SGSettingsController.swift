@@ -51,10 +51,12 @@ private enum SGControllerSection: Int32, SGItemListSection {
     case ugramMessages
     case ugramAdmin
     case ugramChatList
+    case ugramBasic
 }
 
 // MARK: Ugram - pages of Ugram tools; each shows a subset of the sections above.
 public enum UgramSettingsPage: Int {
+    case basic
     case chats
     case ghost
     case interface
@@ -65,6 +67,8 @@ public enum UgramSettingsPage: Int {
 
     fileprivate var sections: Set<SGControllerSection>? {
         switch self {
+        case .basic:
+            return [.ugramBasic]
         case .chats:
             return [.ugramChatList, .ugramDeleted, .ugramAdmin, .chatList, .profiles, .contextMenu]
         case .ghost:
@@ -84,6 +88,8 @@ public enum UgramSettingsPage: Int {
 
     public func title(isRussian: Bool) -> String {
         switch self {
+        case .basic:
+            return isRussian ? "Основные настройки" : "Essentials"
         case .chats:
             return isRussian ? "Чаты" : "Chats"
         case .ghost:
@@ -194,6 +200,7 @@ private enum SGOneFromManySetting: String {
     case ugramAutoPostfix
     case ugramAdminFolders
     case ugramUnreadReminder
+    case ugramRecommended
 }
 
 // MARK: Ugram
@@ -274,6 +281,21 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
         return isRussian ? ru : en
     }
     let ugram = UgramSettings.shared
+    if page == .basic {
+        entries.append(.oneFromManySelector(id: id.count, section: .ugramBasic, settingName: .ugramRecommended, text: t("Включить рекомендуемое ✨", "Turn on recommended ✨"), value: "", enabled: true))
+        entries.append(.notice(id: id.count, section: .ugramBasic, text: t("Одним нажатием: удалённые сообщения, исчезающие медиа, история правок, скрытый просмотр историй и безлимитные закрепы.", "One tap: deleted messages, self-destructing media, edit history, story stealth mode and unlimited pins.")))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramSaveDeletedMessages, value: ugram.bool("ugramSaveDeletedMessages", default: true), text: t("Удалённые сообщения", "Deleted messages"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramKeepSelfDestructingMedia, value: ugram.bool("ugramKeepSelfDestructingMedia", default: true), text: t("Сохранять исчезающие медиа", "Keep self-destructing media"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramEditHistory, value: ugram.bool("ugramEditHistory", default: true), text: t("История правок", "Edit history"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramNoReadReceipts, value: ugram.bool("ugramNoReadReceipts", default: false), text: t("Не отправлять «прочитано»", "Don't send read receipts"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramNoTyping, value: ugram.bool("ugramNoTyping", default: false), text: t("Не показывать «печатает…»", "Don't send typing status"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramHideOnline, value: ugram.bool("ugramHideOnline", default: false), text: t("Не показывать «в сети»", "Don't send online status"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .storyStealthMode, value: SGSimpleSettings.shared.storyStealthMode, text: t("Скрытый просмотр историй", "Story stealth mode"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramUnlimitedPins, value: ugram.bool("ugramUnlimitedPins", default: false), text: t("Безлимитные закрепы", "Unlimited pins"), enabled: true))
+        entries.append(.toggle(id: id.count, section: .ugramBasic, settingName: .ugramDisableAutoDownload, value: ugram.bool("ugramDisableAutoDownload", default: false), text: t("Отключить автозагрузку медиа", "Disable media auto-download"), enabled: true))
+        entries.append(.notice(id: id.count, section: .ugramBasic, text: t("Здесь собраны самые нужные функции. Всё остальное и подробные описания — в других разделах Ugram Tools.", "The most useful features in one place. Everything else, with details, is in the other Ugram Tools sections.")))
+    }
+
     entries.append(.header(id: id.count, section: .ugramDeleted, text: t("УДАЛЁННЫЕ СООБЩЕНИЯ", "DELETED MESSAGES"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramSaveDeletedMessages, value: ugram.bool("ugramSaveDeletedMessages", default: true), text: t("Удалённые сообщения", "Deleted messages"), enabled: true))
     entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramMarkDeletedMessages, value: ugram.bool("ugramMarkDeletedMessages", default: true), text: t("Метка 🗑 у удалённых", "Mark deleted with 🗑"), enabled: ugram.bool("ugramSaveDeletedMessages", default: true)))
@@ -761,6 +783,15 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             })
             presentControllerImpl?(prompt, nil)
             return
+        case .ugramRecommended:
+            let ugram = UgramSettings.shared
+            for key in ["ugramSaveDeletedMessages", "ugramMarkDeletedMessages", "ugramKeepSelfDestructingMedia", "ugramEditHistory", "ugramUnlimitedPins"] {
+                ugram.setBool(true, for: key)
+            }
+            SGSimpleSettings.shared.storyStealthMode = true
+            simplePromise.set(true)
+            presentControllerImpl?(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: isRussian ? "Рекомендуемые функции включены." : "Recommended features are on.", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+            return
         case .ugramAdminFolders:
             let _ = (ugramUpdateAdminFolders(account: context.account, groupsTitle: isRussian ? "Мои группы" : "My groups", channelsTitle: isRussian ? "Мои каналы" : "My channels")
             |> deliverOnMainQueue).start(next: { result in
@@ -781,7 +812,7 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
         }
 
         switch (setting) {
-            case .ugramAutoPostfix, .ugramAdminFolders:
+            case .ugramAutoPostfix, .ugramAdminFolders, .ugramRecommended:
                 break
             case .ugramUnreadReminder:
                 let current = UgramSettings.shared.int("ugramUnreadReminderHours", default: 0)
