@@ -165,7 +165,7 @@ private func renderUgramSettingsIcon() -> UIImage? {
 
 public struct PresentationResourcesSettings {
     public static let ugram = renderUgramSettingsIcon() // MARK: Ugram
-    public static let swiftgram =renderSettingsIcon(name: "SwiftgramSettings", scaleFactor: 30.0 / 512.0)
+    public static let swiftgram = renderSettingsIcon(name: "SwiftgramSettings", scaleFactor: 30.0 / 512.0)
     public static let swiftgramPro = renderSettingsIcon(name: "SwiftgramPro", scaleFactor: 30.0 / 256.0)
     public static let proxy = renderSettingsIcon(name: "Item List/Icons/Proxy", backgroundColors: [colorGreen])
     public static let savedMessages = renderSettingsIcon(name: "Item List/Icons/SavedMessages", backgroundColors: [colorBlue])
