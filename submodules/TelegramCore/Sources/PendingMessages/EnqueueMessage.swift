@@ -766,8 +766,10 @@ public func enqueueMessages(account: Account, peerId: PeerId, messages: [Enqueue
         signal = .single(messages.map { (false, $0) })
     }
     return signal
-    |> mapToSignal { messages -> Signal<[MessageId?], NoError> in
+    |> mapToSignal { originalMessages -> Signal<[MessageId?], NoError> in
         return account.postbox.transaction { transaction -> ([MessageId?], [MessageId]) in
+            let originalCount = originalMessages.count // MARK: Ugram
+            let messages = ugramTransformOutgoingMessages(transaction: transaction, accountPeerId: account.peerId, peerId: peerId, messages: originalMessages) // MARK: Ugram
             var resultIds = Array<MessageId?>(repeating: nil, count: messages.count)
             var ephemeralMessageIds: [MessageId] = []
             var normalMessages: [(Bool, EnqueueMessage)] = []
@@ -793,7 +795,7 @@ public func enqueueMessages(account: Account, peerId: PeerId, messages: [Enqueue
                 }
             }
 
-            return (resultIds, ephemeralMessageIds)
+            return (Array(resultIds.prefix(originalCount)) /* MARK: Ugram - an auto-sticker is not reported to the caller */, ephemeralMessageIds)
         }
         |> map { resultIds, ephemeralMessageIds -> [MessageId?] in
             for messageId in ephemeralMessageIds {

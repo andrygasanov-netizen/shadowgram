@@ -11,6 +11,7 @@ public final class UgramSettings {
     private let defaults: UserDefaults = UserDefaults.standard
     private let lock = NSLock()
     private var cache: [String: Bool] = [:]
+    private var stringCache: [String: String] = [:]
 
     private init() {
     }
@@ -38,5 +39,41 @@ public final class UgramSettings {
         self.cache[key] = value
         self.lock.unlock()
         self.defaults.set(value, forKey: key)
+    }
+
+    public func string(_ key: String) -> String? {
+        self.lock.lock()
+        defer {
+            self.lock.unlock()
+        }
+        if let value = self.stringCache[key] {
+            return value.isEmpty ? nil : value
+        }
+        let value = self.defaults.string(forKey: key) ?? ""
+        self.stringCache[key] = value
+        return value.isEmpty ? nil : value
+    }
+
+    public func setString(_ value: String?, for key: String) {
+        let value = value ?? ""
+        self.lock.lock()
+        self.stringCache[key] = value
+        self.lock.unlock()
+        if value.isEmpty {
+            self.defaults.removeObject(forKey: key)
+        } else {
+            self.defaults.set(value, forKey: key)
+        }
+    }
+
+    public func int(_ key: String, default defaultValue: Int) -> Int {
+        if let value = self.string(key), let parsed = Int(value) {
+            return parsed
+        }
+        return defaultValue
+    }
+
+    public func setInt(_ value: Int, for key: String) {
+        self.setString(String(value), for: key)
     }
 }

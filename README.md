@@ -1,129 +1,65 @@
-# Swiftgram
+# Ugram
 
-Supercharged Telegram fork for iOS
+Неофициальный клиент Telegram для iPhone с расширенными функциями. Основан на [Swiftgram](https://github.com/Swiftgram/Telegram-iOS), а тот — на официальном [Telegram iOS](https://github.com/TelegramMessenger/Telegram-iOS).
 
-[<img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" height="50">](https://apps.apple.com/app/apple-store/id6471879502?pt=126511626&ct=gh&mt=8)
+> Ugram не связан с Telegram FZ-LLC и Swiftgram. Это независимый форк с открытым исходным кодом.
 
-- Download: [App Store](https://apps.apple.com/app/apple-store/id6471879502?pt=126511626&ct=gh&mt=8)
-- Telegram channel: https://t.me/swiftgram
-- Telegram chat: https://t.me/swiftgramchat
-- TestFlight beta, local chats, translations and other [@SwiftgramLinks](https://t.me/s/SwiftgramLinks)
+## Установка
 
-Swiftgram's compilation steps are the same as for the official app. Below you'll find a complete compilation guide based on the official app.
+1. Скачайте `Ugram.ipa` со страницы [последнего релиза](https://github.com/andrygasanov-netizen/ugram/releases/tag/latest).
+2. Подпишите и установите через Feather, ESign, Sideloadly или AltStore.
+3. Откройте приложение и войдите в свой аккаунт Telegram.
 
-# Telegram iOS Source Code Compilation Guide
+IPA собирается без подписи, поэтому подписать его нужно самостоятельно.
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+## Возможности
 
-# Creating your Telegram Application
+Все настройки собраны в одном месте: **Настройки → Ugram Tools**.
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+### Чаты
+- **Удалённые сообщения.** Сообщения, которые собеседник удалил у всех, остаются в чате с меткой 🗑.
+- **Исчезающие медиа.** Одноразовые фото, видео и голосовые можно открывать сколько угодно раз и сохранять.
+- Настройка списка чатов, профилей и меню сообщений.
 
-# Quick Compilation Guide
+### Режим призрака 👻
+- Не отправлять «прочитано».
+- Не показывать «печатает…».
+- Не показывать «в сети».
+- Скрытый просмотр историй.
+- Быстрый переключатель, который включает всё сразу.
 
-## Get the Code
+### Сообщения
+- **Стиль текста:** жирный, курсив, подчёркнутый, зачёркнутый, моноширинный или спойлер для всех исходящих сообщений.
+- **Авто-постфикс:** свой текст в конце каждого сообщения.
+- **Эффект сердечка ❤️** на отправленных сообщениях в личных чатах.
+- **Авто-стикер:** после текстового сообщения отправляется последний использованный стикер.
+- Перевод сообщений без Telegram Premium.
+- Расшифровка голосовых сообщений.
 
-```
-git clone --recursive -j8 https://github.com/Swiftgram/Telegram-iOS.git
-```
+### Интерфейс
+- Вкладки, папки, истории, цвета аккаунтов.
+- Секунды во времени сообщений, ID и дата регистрации в профиле.
 
-## Setup Xcode
+### Медиа и загрузки
+- **Отключить автозагрузку** медиа по мобильной сети и Wi-Fi.
+- Качество отправляемых фото, отправка фото в большом размере.
+- Ускорение загрузки и отправки файлов.
 
-Install Xcode (directly from https://developer.apple.com/download/applications or using the App Store).
+## Сборка
 
-## Adjust Configuration
+IPA собирается через GitHub Actions: workflow **Build Ugram IPA** (`.github/workflows/build.yml`), запуск вручную. Готовый файл публикуется в релиз `latest`.
 
-1. Generate a random identifier:
-```
-openssl rand -hex 8
-```
-2. Create a new Xcode project. Use `Swiftgram` as the Product Name. Use `org.{identifier from step 1}` as the Organization Identifier.
-3. Open `Keychain Access` and navigate to `Certificates`. Locate `Apple Development: your@email.address (XXXXXXXXXX)` and double tap the certificate. Under `Details`, locate `Organizational Unit`. This is the Team ID.
-4. Edit `build-system/template_minimal_development_configuration.json`. Use data from the previous steps.
+Для сборки нужны секреты репозитория:
 
-## Generate an Xcode project
+| Секрет     | Что это                                                                  |
+|------------|--------------------------------------------------------------------------|
+| `API_ID`   | api_id приложения с [my.telegram.org](https://my.telegram.org/apps)      |
+| `API_HASH` | api_hash того же приложения                                              |
 
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=build-system/template_minimal_development_configuration.json \
-    --xcodeManagedCodesigning
-```
+Локальная сборка на macOS выполняется так же, как сборка официального приложения: [руководство Telegram iOS](https://github.com/TelegramMessenger/Telegram-iOS#readme).
 
-# Advanced Compilation Guide
+## Лицензия
 
-## Xcode
+Код распространяется под лицензией **GNU GPL v2**, как и исходный Telegram iOS. Исходный код Ugram открыт в этом репозитории.
 
-1. Copy and edit `build-system/appstore-configuration.json`.
-2. Copy `build-system/fake-codesigning`. Create and download provisioning profiles, using the `profiles` folder as a reference for the entitlements.
-3. Generate an Xcode project:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=configuration_from_step_1.json \
-    --codesigningInformationPath=directory_from_step_2
-```
-
-## IPA
-
-1. Repeat the steps from the previous section. Use distribution provisioning profiles.
-2. Run:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    build \
-    --configurationPath=...see previous section... \
-    --codesigningInformationPath=...see previous section... \
-    --buildNumber=100001 \
-    --configuration=release_arm64
-```
-
-# FAQ
-
-## Xcode is stuck at "build-request.json not updated yet"
-
-Occasionally, you might observe the following message in your build log:
-```
-"/Users/xxx/Library/Developer/Xcode/DerivedData/Telegram-xxx/Build/Intermediates.noindex/XCBuildData/xxx.xcbuilddata/build-request.json" not updated yet, waiting...
-```
-
-Should this occur, simply cancel the ongoing build and initiate a new one.
-
-## Telegram_xcodeproj: no such package 
-
-Following a system restart, the auto-generated Xcode project might encounter a build failure accompanied by this error:
-```
-ERROR: Skipping '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj:Telegram_xcodeproj': no such package '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj': BUILD file not found in directory 'generator/Telegram/Telegram_xcodeproj' of external repository @rules_xcodeproj_generated. Add a BUILD file to a directory to mark it as a package.
-```
-
-If you encounter this issue, re-run the project generation steps in the README.
-
-
-# Tips
-
-## Codesigning is not required for simulator-only builds
-
-Add `--disableProvisioningProfiles`:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=path-to-configuration.json \
-    --codesigningInformationPath=path-to-provisioning-data \
-    --disableProvisioningProfiles
-```
-
-## Versions
-
-Each release is built using a specific Xcode version (see `versions.json`). The helper script checks the versions of the installed software and reports an error if they don't match the ones specified in `versions.json`. It is possible to bypass these checks:
-
-```
-python3 build-system/Make/Make.py --overrideXcodeVersion build ... # Don't check the version of Xcode
-```
+Благодарности: [Telegram](https://github.com/TelegramMessenger/Telegram-iOS) и [Swiftgram](https://github.com/Swiftgram/Telegram-iOS).

@@ -4,6 +4,7 @@ import SGSimpleSettings
 import SGStrings
 import SGAPIToken
 import UgramSettings // MARK: Ugram
+import PromptUI // MARK: Ugram
 
 import SGItemListUI
 import Foundation
@@ -47,6 +48,7 @@ private enum SGControllerSection: Int32, SGItemListSection {
     case ugramDeleted
     case ugramGhost
     case ugramMedia
+    case ugramMessages
 }
 
 // MARK: Ugram - pages of Ugram tools; each shows a subset of the sections above.
@@ -68,7 +70,7 @@ public enum UgramSettingsPage: Int {
         case .interface:
             return [.trending, .tabs, .folders, .stories, .accountColors, .other]
         case .messages:
-            return [.translation, .voiceMessages, .stickers]
+            return [.ugramMessages, .translation, .voiceMessages, .stickers]
         case .media:
             return [.ugramMedia, .photo, .videoNotes]
         case .calls:
@@ -170,6 +172,8 @@ private enum SGBoolSetting: String {
     case ugramNoTyping
     case ugramHideOnline
     case ugramDisableAutoDownload
+    case ugramHeartEffect
+    case ugramAutoSticker
 }
 
 private enum SGOneFromManySetting: String {
@@ -180,6 +184,27 @@ private enum SGOneFromManySetting: String {
 //    case allChatsFolderPositionOverride
     case translationBackend
     case transcriptionBackend
+    // MARK: Ugram
+    case ugramTextStyle
+    case ugramAutoPostfix
+}
+
+// MARK: Ugram
+private let ugramTextStyles: [(value: String, ru: String, en: String)] = [
+    ("", "Без стиля", "No style"),
+    ("bold", "Жирный", "Bold"),
+    ("italic", "Курсив", "Italic"),
+    ("underline", "Подчёркнутый", "Underline"),
+    ("strikethrough", "Зачёркнутый", "Strikethrough"),
+    ("monospace", "Моноширинный", "Monospace"),
+    ("spoiler", "Скрытый (спойлер)", "Spoiler")
+]
+
+private func ugramTextStyleTitle(_ value: String, isRussian: Bool) -> String {
+    for style in ugramTextStyles where style.value == value {
+        return isRussian ? style.ru : style.en
+    }
+    return isRussian ? "Без стиля" : "No style"
 }
 
 private enum SGSliderSetting: String {
@@ -234,6 +259,13 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramHideOnline, value: ugram.bool("ugramHideOnline", default: false), text: t("Не показывать «в сети»", "Don't send online status"), enabled: true))
     entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .storyStealthMode, value: SGSimpleSettings.shared.storyStealthMode, text: t("Скрытый просмотр историй", "Story stealth mode"), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramGhost, text: t("Пока «прочитано» выключено, чаты могут снова становиться непрочитанными после синхронизации. Отправка сообщения всё равно показывает вас в сети.", "While read receipts are off, chats may become unread again after a sync. Sending a message still makes you appear online.")))
+
+    entries.append(.header(id: id.count, section: .ugramMessages, text: t("ИСХОДЯЩИЕ СООБЩЕНИЯ", "OUTGOING MESSAGES"), badge: nil))
+    entries.append(.oneFromManySelector(id: id.count, section: .ugramMessages, settingName: .ugramTextStyle, text: t("Стиль текста", "Text style"), value: ugramTextStyleTitle(ugram.string("ugramTextStyle") ?? "", isRussian: isRussian), enabled: true))
+    entries.append(.oneFromManySelector(id: id.count, section: .ugramMessages, settingName: .ugramAutoPostfix, text: t("Авто-постфикс", "Auto-postfix"), value: ugram.string("ugramAutoPostfix") ?? t("Отключено", "Off"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ugramMessages, settingName: .ugramHeartEffect, value: ugram.bool("ugramHeartEffect", default: false), text: t("Эффект сердечка ❤️", "Heart effect ❤️"), enabled: true))
+    entries.append(.toggle(id: id.count, section: .ugramMessages, settingName: .ugramAutoSticker, value: ugram.bool("ugramAutoSticker", default: false), text: t("Авто-стикер", "Auto-sticker"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramMessages, text: t("Стиль применяется ко всему тексту сообщения. Постфикс добавляется новой строкой в конец. Сердечко — анимированный эффект ❤️, работает только в личных чатах. Авто-стикер отправляет после текстового сообщения последний использованный стикер. Команды ботам (/…) не меняются.", "The style applies to the whole message text. The postfix is added on a new line at the end. The heart is an animated ❤️ effect, private chats only. Auto-sticker sends your most recent sticker after a text message. Bot commands (/…) are left as is.")))
 
     entries.append(.header(id: id.count, section: .ugramMedia, text: t("АВТОЗАГРУЗКА", "AUTO-DOWNLOAD"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ugramMedia, settingName: .ugramDisableAutoDownload, value: ugram.bool("ugramDisableAutoDownload", default: false), text: t("Отключить автозагрузку", "Disable auto-download"), enabled: true))
@@ -642,6 +674,10 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             UgramSettings.shared.setBool(value, for: "ugramHideOnline")
         case .ugramDisableAutoDownload:
             UgramSettings.shared.setBool(value, for: "ugramDisableAutoDownload")
+        case .ugramHeartEffect:
+            UgramSettings.shared.setBool(value, for: "ugramHeartEffect")
+        case .ugramAutoSticker:
+            UgramSettings.shared.setBool(value, for: "ugramAutoSticker")
         }
     }, updateSliderValue: { setting, value in
         switch (setting) {
@@ -666,7 +702,30 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
         var options: [SGOneFromManyOption] = []
         
+        // MARK: Ugram
+        let isRussian = presentationData.strings.baseLanguageCode == "ru"
+        switch setting {
+        case .ugramAutoPostfix:
+            let prompt = promptController(context: context, text: isRussian ? "Авто-постфикс" : "Auto-postfix", subtitle: isRussian ? "Текст добавится в конец каждого вашего сообщения. Оставьте пустым, чтобы отключить." : "This text is added to the end of each of your messages. Leave empty to turn off.", value: UgramSettings.shared.string("ugramAutoPostfix") ?? "", placeholder: isRussian ? "Например: — отправлено из Ugram" : "For example: sent from Ugram", characterLimit: 200, displayCharacterLimit: true, apply: { value in
+                UgramSettings.shared.setString(value?.trimmingCharacters(in: .whitespacesAndNewlines), for: "ugramAutoPostfix")
+                simplePromise.set(true)
+            })
+            presentControllerImpl?(prompt, nil)
+            return
+        default:
+            break
+        }
+
         switch (setting) {
+            case .ugramAutoPostfix:
+                break
+            case .ugramTextStyle:
+                for style in ugramTextStyles {
+                    options.append(SGOneFromManyOption(title: isRussian ? style.ru : style.en, isSelected: (UgramSettings.shared.string("ugramTextStyle") ?? "") == style.value, action: {
+                        UgramSettings.shared.setString(style.value, for: "ugramTextStyle")
+                        simplePromise.set(true)
+                    }))
+                }
             case .downloadSpeedBoost:
                 let setAction: (String) -> Void = { value in
                     SGSimpleSettings.shared.downloadSpeedBoost = value
