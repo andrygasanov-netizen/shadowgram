@@ -52,6 +52,9 @@ jobs:
           config['api_id'] = os.environ['API_ID']
           config['api_hash'] = os.environ['API_HASH']
           config.setdefault('sg_config', '')
+          # Re-signing tools (Feather, ESign, Sideloadly) drop the iCloud entitlement;
+          # CKContainer.default() then throws an ObjC exception and the app aborts at launch.
+          config['enable_icloud'] = False
           with open(os.path.expanduser('~/ugram-configuration.json'), 'w') as f:
               json.dump(config, f)
           EOF
