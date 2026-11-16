@@ -271,8 +271,8 @@ private enum DebugLogAction {
         // MARK: Swiftgram
         case .sendOneLog, .sgSendLogs:
             let logCollectionSignal = self == .sgSendLogs ? SGLogger.shared.collectLogs() : Logger.shared.collectLogs()
-            let fileName = self == .sgSendLogs ? "Log-iOS-Swiftgram.txt" : "Log-iOS-Short.txt"
-            let appName = self == .sgSendLogs ? "Swiftgram" : "Telegram"
+            let fileName = self == .sgSendLogs ? "Log-iOS-Ugram.txt" : "Log-iOS-Short.txt"
+            let appName = self == .sgSendLogs ? "Ugram" : "Telegram"
             //
             let _ = (logCollectionSignal // MARK: Swiftgram
                 |> deliverOnMainQueue).start(next: { logs in
