@@ -11,6 +11,7 @@ import SGAPIWebSettings
 import SGLogging
 import SGStrings
 import SGSimpleSettings
+import UgramSettings // MARK: Ugram
 //
 import UIKit
 import SwiftSignalKit
@@ -2193,6 +2194,9 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         self.isActiveValue = false
         self.isActivePromise.set(false)
         
+        UgramUnreadReminder.schedule() // MARK: Ugram
+        UgramChatPrivacy.shared.relockAll() // MARK: Ugram
+        
         final class TaskIdHolder {
             var taskId: UIBackgroundTaskIdentifier?
         }
@@ -2212,6 +2216,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     }
 
     func handleWillEnterForeground() {
+        UgramUnreadReminder.cancel() // MARK: Ugram
         if self.isActiveValue {
             self.isInForegroundValue = true
             self.isInForegroundPromise.set(true)

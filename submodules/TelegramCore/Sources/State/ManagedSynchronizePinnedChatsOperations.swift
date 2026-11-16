@@ -222,6 +222,11 @@ private func synchronizePinnedChats(transaction: Transaction, postbox: Postbox, 
                 resultingItemIds.append(contentsOf: remoteItemIds.filter { !locallyRemovedFromRemoteItemIds.contains($0) && !resultingItemIds.contains($0) })
             }
             
+            // MARK: Ugram - keep the pins the server doesn't know about.
+            resultingItemIds = UgramLocalPins.merge(serverItemIds: resultingItemIds, previousLocalItemIds: localItemIds, accountPeerId: accountPeerId, groupId: groupId)
+            let ugramLocalOnly = Set(UgramLocalPins.get(accountPeerId: accountPeerId, groupId: groupId).map { PinnedItemId.peer($0) })
+            let ugramServerItemIds = resultingItemIds.filter { !ugramLocalOnly.contains($0) }
+            
             return postbox.transaction { transaction -> Signal<Void, NoError> in
                 updatePeers(transaction: transaction, accountPeerId: accountPeerId, peers: parsedPeers)
                 
@@ -264,11 +269,11 @@ private func synchronizePinnedChats(transaction: Transaction, postbox: Postbox, 
                     }
                 }
                 
-                if remoteItemIds == resultingItemIds {
+                if remoteItemIds == ugramServerItemIds {
                     return .complete()
                 } else {
                     var inputDialogPeers: [Api.InputDialogPeer] = []
-                    for itemId in resultingItemIds {
+                    for itemId in ugramServerItemIds {
                         switch itemId {
                             case let .peer(peerId):
                                 if let peer = transaction.getPeer(peerId), let inputDialogPeer = apiInputDialogPeer(peer) {

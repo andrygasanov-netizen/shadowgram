@@ -1,4 +1,5 @@
 import Foundation
+import UgramSettings // MARK: Ugram
 import UIKit
 import Display
 import SwiftSignalKit
@@ -22,6 +23,16 @@ import ChatMessageNotificationItem
 import FaceScanScreen
 
 public func navigateToChatControllerImpl(_ params: NavigateToChatControllerParams) {
+    // MARK: Ugram - locked chats open only after Face ID / passcode.
+    if case let .peer(peer) = params.chatLocation, UgramChatPrivacy.shared.needsUnlock(accountId: params.context.account.peerId.toInt64(), peerId: peer.id.toInt64()) {
+        let isRussian = params.context.sharedContext.currentPresentationData.with { $0 }.strings.baseLanguageCode == "ru"
+        UgramChatPrivacy.shared.authenticate(reason: isRussian ? "Открыть заблокированный чат" : "Open a locked chat", unlocking: peer.id.toInt64(), completion: { success in
+            if success {
+                navigateToChatControllerImpl(params)
+            }
+        })
+        return
+    }
     if case let .peer(peer) = params.chatLocation {
         let _ = params.context.engine.peers.ensurePeerIsLocallyAvailable(peer: peer).startStandalone()
     }

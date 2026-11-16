@@ -57,13 +57,28 @@ func _internal_toggleItemPinned(postbox: Postbox, accountPeerId: PeerId, locatio
             }
             
             let count = sameKind.count + additionalCount
-            if count > limitCount, itemIds.firstIndex(of: itemId) == nil {
+            // MARK: Ugram - pins past the limit stay on this device.
+            let ugramLocalOnly = UgramLocalPins.get(accountPeerId: accountPeerId, groupId: groupId)
+            let serverCount = sameKind.filter { item in
+                switch item {
+                case let .peer(peerId):
+                    return !ugramLocalOnly.contains(peerId)
+                }
+            }.count + additionalCount
+            if count > limitCount, itemIds.firstIndex(of: itemId) == nil, !UgramLocalPins.isEnabled {
                 return .limitExceeded(count: sameKind.count, limit: limitCount)
             } else {
                 if let index = itemIds.firstIndex(of: itemId) {
                     itemIds.remove(at: index)
+                    switch itemId {
+                    case let .peer(peerId):
+                        UgramLocalPins.remove(peerId, accountPeerId: accountPeerId, groupId: groupId)
+                    }
                 } else {
                     itemIds.insert(itemId, at: 0)
+                    if serverCount > limitCount, case let .peer(peerId) = itemId, peerId.namespace != Namespaces.Peer.SecretChat {
+                        UgramLocalPins.add(peerId, accountPeerId: accountPeerId, groupId: groupId)
+                    }
                 }
                 addSynchronizePinnedChatsOperation(transaction: transaction, groupId: groupId)
                 transaction.setPinnedItemIds(groupId: groupId, itemIds: itemIds)

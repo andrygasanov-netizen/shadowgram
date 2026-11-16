@@ -1,4 +1,5 @@
 import Foundation
+import UgramSettings // MARK: Ugram
 import UIKit
 import SwiftSignalKit
 import ContextUI
@@ -460,6 +461,43 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                                     }
                                 })
                             })))
+                            
+                            // MARK: Ugram - lock and hide chats.
+                            if !isSavedMessages {
+                                let ugramAccountId = context.account.peerId.toInt64()
+                                let ugramPeerId = peerId.toInt64()
+                                let ugramIsRussian = strings.baseLanguageCode == "ru"
+                                let ugramIsLocked = UgramChatPrivacy.shared.contains(.locked, accountId: ugramAccountId, peerId: ugramPeerId)
+                                items.append(.action(ContextMenuActionItem(text: ugramIsLocked ? (ugramIsRussian ? "Снять блокировку" : "Unlock chat") : (ugramIsRussian ? "Заблокировать чат" : "Lock chat"), icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Lock"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                                    f(.default)
+                                    if ugramIsLocked {
+                                        UgramChatPrivacy.shared.authenticate(reason: ugramIsRussian ? "Снять блокировку с чата" : "Unlock the chat", completion: { success in
+                                            if success {
+                                                UgramChatPrivacy.shared.set(.locked, accountId: ugramAccountId, peerId: ugramPeerId, value: false)
+                                            }
+                                        })
+                                    } else {
+                                        UgramChatPrivacy.shared.set(.locked, accountId: ugramAccountId, peerId: ugramPeerId, value: true)
+                                    }
+                                })))
+                                let ugramIsHidden = UgramChatPrivacy.shared.contains(.hidden, accountId: ugramAccountId, peerId: ugramPeerId)
+                                items.append(.action(ContextMenuActionItem(text: ugramIsHidden ? (ugramIsRussian ? "Вернуть в список чатов" : "Show in chat list") : (ugramIsRussian ? "Скрыть чат" : "Hide chat"), icon: { theme in generateTintedImage(image: UIImage(bundleImageName: ugramIsHidden ? "Chat/Context Menu/Eye" : "Chat/Context Menu/HideArchive"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                                    f(.default)
+                                    let apply: () -> Void = {
+                                        UgramChatPrivacy.shared.set(.hidden, accountId: ugramAccountId, peerId: ugramPeerId, value: !ugramIsHidden)
+                                        chatListController?.ugramSetChatHidden(peerId: peerId, hidden: !ugramIsHidden)
+                                    }
+                                    if ugramIsHidden {
+                                        UgramChatPrivacy.shared.authenticate(reason: ugramIsRussian ? "Показать скрытый чат" : "Show a hidden chat", completion: { success in
+                                            if success {
+                                                apply()
+                                            }
+                                        })
+                                    } else {
+                                        apply()
+                                    }
+                                })))
+                            }
                             
                             if !isSavedMessages {
                                 let isMuted = chatContextMenuPeerIsMuted(peer: peer, notificationSettings: notificationSettings, globalNotificationSettings: globalNotificationSettings)

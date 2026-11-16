@@ -50,6 +50,7 @@ private enum SGControllerSection: Int32, SGItemListSection {
     case ugramMedia
     case ugramMessages
     case ugramAdmin
+    case ugramChatList
 }
 
 // MARK: Ugram - pages of Ugram tools; each shows a subset of the sections above.
@@ -65,7 +66,7 @@ public enum UgramSettingsPage: Int {
     fileprivate var sections: Set<SGControllerSection>? {
         switch self {
         case .chats:
-            return [.ugramDeleted, .ugramAdmin, .chatList, .profiles, .contextMenu]
+            return [.ugramChatList, .ugramDeleted, .ugramAdmin, .chatList, .profiles, .contextMenu]
         case .ghost:
             return [.ugramGhost]
         case .interface:
@@ -177,6 +178,7 @@ private enum SGBoolSetting: String {
     case ugramEditHistory
     case ugramAutoApproveJoinRequests
     case ugramAutoSticker
+    case ugramUnlimitedPins
 }
 
 private enum SGOneFromManySetting: String {
@@ -190,6 +192,8 @@ private enum SGOneFromManySetting: String {
     // MARK: Ugram
     case ugramTextStyle
     case ugramAutoPostfix
+    case ugramAdminFolders
+    case ugramUnreadReminder
 }
 
 // MARK: Ugram
@@ -202,6 +206,27 @@ private let ugramTextStyles: [(value: String, ru: String, en: String)] = [
     ("monospace", "Моноширинный", "Monospace"),
     ("spoiler", "Скрытый (спойлер)", "Spoiler")
 ]
+
+private let ugramReminderHours: [Int] = [0, 1, 3, 6, 12, 24]
+
+private func ugramReminderTitle(_ hours: Int, isRussian: Bool) -> String {
+    if hours <= 0 {
+        return isRussian ? "Отключено" : "Off"
+    }
+    if isRussian {
+        let suffix: String
+        switch hours {
+        case 1, 21:
+            suffix = "час"
+        case 2, 3, 4, 22, 23, 24:
+            suffix = "часа"
+        default:
+            suffix = "часов"
+        }
+        return "Через \(hours) \(suffix)"
+    }
+    return hours == 1 ? "After 1 hour" : "After \(hours) hours"
+}
 
 private func ugramTextStyleTitle(_ value: String, isRussian: Bool) -> String {
     for style in ugramTextStyles where style.value == value {
@@ -261,6 +286,15 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.header(id: id.count, section: .ugramAdmin, text: t("ВАШИ ГРУППЫ И КАНАЛЫ", "YOUR GROUPS AND CHANNELS"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ugramAdmin, settingName: .ugramAutoApproveJoinRequests, value: ugram.bool("ugramAutoApproveJoinRequests", default: false), text: t("Авто-принятие заявок", "Auto-approve join requests"), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramAdmin, text: t("Заявки на вступление в группы и каналы, где вы администратор, одобряются сразу, как только приходят. Работает, пока Ugram запущен.", "Join requests to groups and channels you administer are approved as soon as they arrive. Works while Ugram is running.")))
+
+    entries.append(.oneFromManySelector(id: id.count, section: .ugramAdmin, settingName: .ugramAdminFolders, text: t("Папки админа", "Admin folders"), value: t("Обновить", "Update"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramAdmin, text: t("Создаёт папки «Мои группы» и «Мои каналы» с чатами, где вы владелец или администратор. Нажмите ещё раз, чтобы обновить их после изменений.", "Creates \"My groups\" and \"My channels\" folders with the chats you own or administer. Tap again to refresh them after changes.")))
+
+    entries.append(.header(id: id.count, section: .ugramChatList, text: t("СПИСОК ЧАТОВ", "CHAT LIST"), badge: nil))
+    entries.append(.toggle(id: id.count, section: .ugramChatList, settingName: .ugramUnlimitedPins, value: ugram.bool("ugramUnlimitedPins", default: false), text: t("Безлимитные закрепы", "Unlimited pins"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Закрепляйте сколько угодно чатов. Закрепы сверх лимита Telegram хранятся только на этом устройстве.", "Pin as many chats as you like. Pins over the Telegram limit are kept on this device only.")))
+    entries.append(.oneFromManySelector(id: id.count, section: .ugramChatList, settingName: .ugramUnreadReminder, text: t("Напоминать о непрочитанном", "Unread reminder"), value: ugramReminderTitle(ugram.int("ugramUnreadReminderHours", default: 0), isRussian: isRussian), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Если вы закрыли Ugram, а непрочитанные сообщения остались, через выбранное время придёт напоминание.", "If you leave Ugram with unread messages, a reminder arrives after the chosen time.")))
 
     entries.append(.header(id: id.count, section: .ugramGhost, text: t("РЕЖИМ ПРИЗРАКА", "GHOST MODE"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramNoReadReceipts, value: ugram.bool("ugramNoReadReceipts", default: false), text: t("Не отправлять «прочитано»", "Don't send read receipts"), enabled: true))
@@ -691,6 +725,8 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             UgramSettings.shared.setBool(value, for: "ugramHeartEffect")
         case .ugramAutoSticker:
             UgramSettings.shared.setBool(value, for: "ugramAutoSticker")
+        case .ugramUnlimitedPins:
+            UgramSettings.shared.setBool(value, for: "ugramUnlimitedPins")
         }
     }, updateSliderValue: { setting, value in
         switch (setting) {
@@ -725,13 +761,36 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             })
             presentControllerImpl?(prompt, nil)
             return
+        case .ugramAdminFolders:
+            let _ = (ugramUpdateAdminFolders(account: context.account, groupsTitle: isRussian ? "Мои группы" : "My groups", channelsTitle: isRussian ? "Мои каналы" : "My channels")
+            |> deliverOnMainQueue).start(next: { result in
+                var text: String
+                if result.groups == 0 && result.channels == 0 {
+                    text = isRussian ? "Не нашлось групп и каналов, где вы администратор." : "No groups or channels you administer were found."
+                } else {
+                    text = isRussian ? "Готово: групп — \(result.groups), каналов — \(result.channels)." : "Done: \(result.groups) groups, \(result.channels) channels."
+                }
+                if !result.createdAll {
+                    text += isRussian ? " Не все папки созданы: достигнут лимит папок." : " Not all folders were created: the folder limit was reached."
+                }
+                presentControllerImpl?(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: text, timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+            })
+            return
         default:
             break
         }
 
         switch (setting) {
-            case .ugramAutoPostfix:
+            case .ugramAutoPostfix, .ugramAdminFolders:
                 break
+            case .ugramUnreadReminder:
+                let current = UgramSettings.shared.int("ugramUnreadReminderHours", default: 0)
+                for hours in ugramReminderHours {
+                    options.append(SGOneFromManyOption(title: ugramReminderTitle(hours, isRussian: isRussian), isSelected: current == hours, action: {
+                        UgramSettings.shared.setInt(hours, for: "ugramUnreadReminderHours")
+                        simplePromise.set(true)
+                    }))
+                }
             case .ugramTextStyle:
                 for style in ugramTextStyles {
                     options.append(SGOneFromManyOption(title: isRussian ? style.ru : style.en, isSelected: (UgramSettings.shared.string("ugramTextStyle") ?? "") == style.value, action: {

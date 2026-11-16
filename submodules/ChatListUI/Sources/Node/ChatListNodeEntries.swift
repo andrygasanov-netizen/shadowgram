@@ -1,4 +1,5 @@
 import Foundation
+import UgramSettings // MARK: Ugram
 import UIKit
 import TelegramCore
 import TelegramPresentationData
@@ -677,6 +678,8 @@ func chatListNodeEntriesForView(view: EngineChatList, state: ChatListNodeState, 
     
     var hasPinned = false
     
+    let ugramHiddenPeers = UgramChatPrivacy.shared.peers(.hidden, accountId: accountPeerId.toInt64()) // MARK: Ugram
+    
     loop: for entry in view.items {
         var peerId: EnginePeer.Id?
         var threadId: Int64?
@@ -691,6 +694,10 @@ func chatListNodeEntriesForView(view: EngineChatList, state: ChatListNodeState, 
         }
         
         if let savedMessagesPeer = savedMessagesPeer, let peerId = peerId, savedMessagesPeer.id == peerId || foundPeerIds.contains(peerId) {
+            continue loop
+        }
+        // MARK: Ugram - hidden chats
+        if threadId == nil, let peerId = peerId, ugramHiddenPeers.contains(peerId.toInt64()) {
             continue loop
         }
         if let peerId = peerId, state.pendingRemovalItemIds.contains(ChatListNodeState.ItemId(peerId: peerId, threadId: threadId)) {

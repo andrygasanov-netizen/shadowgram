@@ -15,6 +15,7 @@ import AccountContext
 
 private enum UgramSection: Int32, SGItemListSection {
     case quick
+    case privacy
     case pages
     case all
 }
@@ -45,6 +46,10 @@ private func ugramEntries(presentationData: PresentationData) -> [UgramEntry] {
     entries.append(.toggle(id: id.count, section: .quick, settingName: .ghostMode, value: isGhostModeOn(), text: t("Режим призрака 👻", "Ghost mode 👻"), enabled: true))
     entries.append(.notice(id: id.count, section: .quick, text: t("Одним переключателем: не отправлять «прочитано», «печатает…» и «в сети». По отдельности — в разделе «Режим призрака».", "One switch for no read receipts, no typing and no online status. Separately: in the \"Ghost mode\" section.")))
 
+    entries.append(.header(id: id.count, section: .privacy, text: t("ПРИВАТНОСТЬ", "PRIVACY"), badge: nil))
+    entries.append(.action(id: id.count, section: .privacy, actionType: AnyHashable("hiddenChats"), text: t("Скрытые чаты 🔒", "Hidden chats 🔒"), kind: .generic))
+    entries.append(.notice(id: id.count, section: .privacy, text: t("Зажмите чат в списке, чтобы заблокировать его (вход по Face ID или коду телефона) или скрыть из списка чатов. Скрытые чаты открываются отсюда.", "Long-press a chat in the list to lock it (Face ID or device passcode) or hide it from the chat list. Hidden chats open from here.")))
+
     entries.append(.header(id: id.count, section: .pages, text: t("РАЗДЕЛЫ", "SECTIONS"), badge: nil))
     let pages: [UgramSettingsPage] = [.chats, .ghost, .interface, .messages, .media, .calls]
     for page in pages {
@@ -59,6 +64,8 @@ private func ugramEntries(presentationData: PresentationData) -> [UgramEntry] {
 
 public func ugramToolsController(context: AccountContext) -> ViewController {
     var pushControllerImpl: ((ViewController) -> Void)?
+    var presentControllerImpl: ((ViewController) -> Void)?
+    var openChatImpl: ((EnginePeer) -> Void)?
     let refresh = ValuePromise(true, ignoreRepeated: false)
 
     let arguments = SGItemListArguments<UgramBoolSetting, AnyHashable, AnyHashable, UgramSettingsPage, AnyHashable>(
@@ -74,6 +81,40 @@ public func ugramToolsController(context: AccountContext) -> ViewController {
         },
         openDisclosureLink: { page in
             pushControllerImpl?(sgSettingsController(context: context, page: page))
+        },
+        action: { actionType in
+            guard actionType == AnyHashable("hiddenChats") else {
+                return
+            }
+            let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+            let isRussian = presentationData.strings.baseLanguageCode == "ru"
+            UgramChatPrivacy.shared.authenticate(reason: isRussian ? "Показать скрытые чаты" : "Show hidden chats", completion: { success in
+                guard success else {
+                    return
+                }
+                let ids = UgramChatPrivacy.shared.peers(.hidden, accountId: context.account.peerId.toInt64()).map { EnginePeer.Id($0) }
+                let _ = (context.engine.data.get(EngineDataMap(ids.map { TelegramEngine.EngineData.Item.Peer.Peer(id: $0) }))
+                |> deliverOnMainQueue).startStandalone(next: { peerMap in
+                    let peers = ids.compactMap { peerMap[$0] ?? nil }.sorted { $0.debugDisplayTitle.lowercased() < $1.debugDisplayTitle.lowercased() }
+                    let actionSheet = ActionSheetController(presentationData: presentationData)
+                    var items: [ActionSheetItem] = []
+                    if peers.isEmpty {
+                        items.append(ActionSheetTextItem(title: isRussian ? "Скрытых чатов нет. Зажмите чат в списке и выберите «Скрыть чат»." : "No hidden chats. Long-press a chat in the list and choose \"Hide chat\"."))
+                    }
+                    for peer in peers {
+                        items.append(ActionSheetButtonItem(title: peer.debugDisplayTitle, color: .accent, action: { [weak actionSheet] in
+                            actionSheet?.dismissAnimated()
+                            openChatImpl?(peer)
+                        }))
+                    }
+                    actionSheet.setItemGroups([ActionSheetItemGroup(items: items), ActionSheetItemGroup(items: [
+                        ActionSheetButtonItem(title: presentationData.strings.Common_Cancel, color: .accent, font: .bold, action: { [weak actionSheet] in
+                            actionSheet?.dismissAnimated()
+                        })
+                    ])])
+                    presentControllerImpl?(actionSheet)
+                })
+            })
         }
     )
 
@@ -91,6 +132,15 @@ public func ugramToolsController(context: AccountContext) -> ViewController {
     let controller = ItemListController(context: context, state: signal)
     pushControllerImpl = { [weak controller] c in
         (controller?.navigationController as? NavigationController)?.pushViewController(c)
+    }
+    presentControllerImpl = { [weak controller] c in
+        controller?.present(c, in: .window(.root), with: ViewControllerPresentationArguments(presentationAnimation: .modalSheet))
+    }
+    openChatImpl = { [weak controller] peer in
+        guard let navigationController = controller?.navigationController as? NavigationController else {
+            return
+        }
+        context.sharedContext.navigateToChatController(NavigateToChatControllerParams(navigationController: navigationController, context: context, chatLocation: .peer(peer)))
     }
     // Pages change the ghost switches too; refresh the quick toggle when coming back.
     controller.didAppear = { _ in

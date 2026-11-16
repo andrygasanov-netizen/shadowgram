@@ -1,6 +1,7 @@
 import SGSimpleSettings // MARK: Swiftgram
 
 import Foundation
+import UgramSettings // MARK: Ugram
 import UIKit
 import Postbox
 import SwiftSignalKit
@@ -2070,10 +2071,12 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                     } else {
                         var dismissPreviewingImpl: ((Bool) -> (() -> Void))?
                         let source: ContextContentSource
+                        // MARK: Ugram - no message preview for locked chats.
+                        let ugramLocked = UgramChatPrivacy.shared.needsUnlock(accountId: strongSelf.context.account.peerId.toInt64(), peerId: peer.peerId.toInt64())
                         if case .community = peer.peer {
                             let communityController = strongSelf.makeCommunityViewController(communityId: peer.peerId, mode: .preview)
                             source = .controller(ContextControllerContentSourceImpl(controller: communityController, sourceNode: node, navigationController: strongSelf.navigationController as? NavigationController))
-                        } else if let location = location {
+                        } else if let location = location ?? (ugramLocked ? node.view.convert(CGPoint(x: node.bounds.midX, y: node.bounds.midY), to: nil) : nil) {
                             source = .location(ChatListContextLocationContentSource(controller: strongSelf, location: location))
                         } else {
                             let chatController = strongSelf.context.sharedContext.makeChatController(context: strongSelf.context, chatLocation: .peer(id: peer.peerId), subject: nil, botStart: nil, mode: .standard(.previewing), params: nil)
@@ -2160,6 +2163,9 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                 let communityController = strongSelf.makeCommunityViewController(communityId: peer.id, mode: .preview)
                 let contextController = makeContextController(context: strongSelf.context, presentationData: strongSelf.presentationData, source: .controller(ContextControllerContentSourceImpl(controller: communityController, sourceNode: node, navigationController: strongSelf.navigationController as? NavigationController)), items: chatContextMenuItems(context: strongSelf.context, peerId: peer.id, promoInfo: nil, source: .search(source), chatListController: strongSelf, joined: false) |> map { ContextController.Items(content: .list($0)) }, gesture: gesture)
                 strongSelf.presentInGlobalOverlay(contextController)
+            } else if UgramChatPrivacy.shared.needsUnlock(accountId: strongSelf.context.account.peerId.toInt64(), peerId: peer.id.toInt64()) {
+                // MARK: Ugram - no message preview for locked chats.
+                gesture?.cancel()
             } else {
                 var dismissPreviewingImpl: ((Bool) -> (() -> Void))?
                 var subject: ChatControllerSubject?
@@ -6922,6 +6928,22 @@ private final class ChatListHeaderBarContextExtractedContentSource: ContextExtra
     
     func putBack() -> ContextControllerPutBackViewInfo? {
         return ContextControllerPutBackViewInfo(contentAreaInScreenSpace: mainWindowScreenBounds)
+    }
+}
+
+// MARK: Ugram
+extension ChatListControllerImpl {
+    func ugramSetChatHidden(peerId: EnginePeer.Id, hidden: Bool) {
+        self.chatListDisplayNode.effectiveContainerNode.updateState(onlyCurrent: false, { state in
+            var state = state
+            let itemId = ChatListNodeState.ItemId(peerId: peerId, threadId: nil)
+            if hidden {
+                state.pendingRemovalItemIds.insert(itemId)
+            } else {
+                state.pendingRemovalItemIds.remove(itemId)
+            }
+            return state
+        })
     }
 }
 
