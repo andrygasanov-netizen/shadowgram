@@ -1358,6 +1358,9 @@ public class Account {
         self.stateManager = AccountStateManager(accountPeerId: self.peerId, accountManager: accountManager, postbox: self.postbox, network: self.network, callSessionManager: self.callSessionManager, shouldKeepOnlinePresence: self.shouldKeepOnlinePresence.get(), peerInputActivityManager: self.peerInputActivityManager, auxiliaryMethods: auxiliaryMethods, ignoresShortSentMessages: supplementary)
         
         self.viewTracker = AccountViewTracker(account: self)
+        if !supplementary {
+            UgramJoinRequestApprover.shared.register(account: self) // MARK: Ugram
+        }
         self.viewTracker.resetPeerHoleManagement = { [weak self] peerId in
             self?.resetPeerHoleManagement?(peerId)
         }

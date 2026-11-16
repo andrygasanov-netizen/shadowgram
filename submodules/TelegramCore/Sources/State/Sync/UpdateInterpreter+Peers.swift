@@ -227,6 +227,10 @@ extension UpdateInterpreter {
     
     mutating func applyPendingJoinRequests(_ updatePendingJoinRequestsData: Api.Update.Cons_updatePendingJoinRequests) {
         let (peer, requestsPending) = (updatePendingJoinRequestsData.peer, updatePendingJoinRequestsData.requestsPending)
+        // MARK: Ugram - auto-approve join requests.
+        if requestsPending > 0 && UgramJoinRequestApprover.isEnabled {
+            UgramJoinRequestApprover.shared.requestsPending(accountPeerId: self.accountPeerId, peerId: peer.peerId)
+        }
         updatedState.updateCachedPeerData(peer.peerId, { current in
             if peer.peerId.namespace == Namespaces.Peer.CloudGroup {
                 let previous: CachedGroupData

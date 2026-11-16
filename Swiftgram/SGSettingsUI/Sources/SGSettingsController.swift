@@ -49,6 +49,7 @@ private enum SGControllerSection: Int32, SGItemListSection {
     case ugramGhost
     case ugramMedia
     case ugramMessages
+    case ugramAdmin
 }
 
 // MARK: Ugram - pages of Ugram tools; each shows a subset of the sections above.
@@ -64,7 +65,7 @@ public enum UgramSettingsPage: Int {
     fileprivate var sections: Set<SGControllerSection>? {
         switch self {
         case .chats:
-            return [.ugramDeleted, .chatList, .profiles, .contextMenu]
+            return [.ugramDeleted, .ugramAdmin, .chatList, .profiles, .contextMenu]
         case .ghost:
             return [.ugramGhost]
         case .interface:
@@ -174,6 +175,7 @@ private enum SGBoolSetting: String {
     case ugramDisableAutoDownload
     case ugramHeartEffect
     case ugramEditHistory
+    case ugramAutoApproveJoinRequests
     case ugramAutoSticker
 }
 
@@ -255,6 +257,10 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Зажмите отредактированное сообщение и выберите «История правок», чтобы увидеть прошлые версии. Запоминаются правки, сделанные после установки Ugram, пока приложение получало обновления.", "Long-press an edited message and choose \"Edit history\" to see earlier versions. Edits made after installing Ugram, while the app was receiving updates, are remembered.")))
     entries.append(.toggle(id: id.count, section: .ugramDeleted, settingName: .ugramKeepSelfDestructingMedia, value: ugram.bool("ugramKeepSelfDestructingMedia", default: true), text: t("Сохранять исчезающие медиа", "Keep self-destructing media"), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramDeleted, text: t("Одноразовые фото, видео и голосовые приходят как обычные: их можно открывать сколько угодно раз и сохранять. Действует на медиа, полученные после включения.", "View-once photos, videos and voice messages arrive as regular media: open and save them any number of times. Applies to media received after turning this on.")))
+
+    entries.append(.header(id: id.count, section: .ugramAdmin, text: t("ВАШИ ГРУППЫ И КАНАЛЫ", "YOUR GROUPS AND CHANNELS"), badge: nil))
+    entries.append(.toggle(id: id.count, section: .ugramAdmin, settingName: .ugramAutoApproveJoinRequests, value: ugram.bool("ugramAutoApproveJoinRequests", default: false), text: t("Авто-принятие заявок", "Auto-approve join requests"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramAdmin, text: t("Заявки на вступление в группы и каналы, где вы администратор, одобряются сразу, как только приходят. Работает, пока Ugram запущен.", "Join requests to groups and channels you administer are approved as soon as they arrive. Works while Ugram is running.")))
 
     entries.append(.header(id: id.count, section: .ugramGhost, text: t("РЕЖИМ ПРИЗРАКА", "GHOST MODE"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramNoReadReceipts, value: ugram.bool("ugramNoReadReceipts", default: false), text: t("Не отправлять «прочитано»", "Don't send read receipts"), enabled: true))
@@ -677,6 +683,8 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             UgramSettings.shared.setBool(value, for: "ugramHideOnline")
         case .ugramDisableAutoDownload:
             UgramSettings.shared.setBool(value, for: "ugramDisableAutoDownload")
+        case .ugramAutoApproveJoinRequests:
+            UgramSettings.shared.setBool(value, for: "ugramAutoApproveJoinRequests")
         case .ugramEditHistory:
             UgramSettings.shared.setBool(value, for: "ugramEditHistory")
         case .ugramHeartEffect:
