@@ -1096,12 +1096,33 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 return nil
             }
         }, requestSetAlternateIconName: { name, completion in
-            application.setAlternateIconName(name, completionHandler: { error in
-                if let error = error {
-                   Logger.shared.log("App \(self.episodeId)", "failed to set alternate icon with error \(error.localizedDescription)")
-                }
-                completion(error == nil)
-            })
+            // MARK: Ugram - retry once (iOS sometimes answers "Resource temporarily unavailable"), then show the real error.
+            func ugramSetIcon(attempt: Int) {
+                application.setAlternateIconName(name, completionHandler: { error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            Logger.shared.log("App \(self.episodeId)", "failed to set alternate icon with error \(error.localizedDescription)")
+                            if attempt == 0 {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7, execute: {
+                                    ugramSetIcon(attempt: 1)
+                                })
+                                return
+                            }
+                            let nsError = error as NSError
+                            let isRussian = (Locale.preferredLanguages.first ?? "").hasPrefix("ru")
+                            let alert = UIAlertController(title: isRussian ? "Иконка не сменилась" : "Icon not changed", message: "\(nsError.localizedDescription)\n(\(nsError.domain) \(nsError.code))", preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "OK", style: .default))
+                            var top = self.window?.rootViewController
+                            while let presented = top?.presentedViewController {
+                                top = presented
+                            }
+                            top?.present(alert, animated: true)
+                        }
+                        completion(error == nil)
+                    }
+                })
+            }
+            ugramSetIcon(attempt: 0)
         }, forceOrientation: { orientation in
             let value = orientation.rawValue
             if #available(iOSApplicationExtension 16.0, iOS 16.0, *) {
