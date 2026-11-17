@@ -1,19 +1,13 @@
-## Что нового
+## Что нового (по сравнению с build 21)
 
-- Ugram теперь называется **Shadowgram**: новое имя, иконки с буквой «S» и плашка «SHADOWGRAM» у Dynamic Island.
-- **Мгновенные уведомления** через бесплатное приложение ntfy: Shadowgram Tools → Чаты → «Мгновенные уведомления».
-- Иконки в стиле настроек Telegram на главном экране Shadowgram Tools; убраны лишние эмодзи.
-- Все тексты в Tools теперь с нашим названием (Swiftgram больше не подгружает свои тексты).
-- Убрана иконка «β Beta» от Swiftgram.
+- **Новая иконка**: призрак 👻 на тёмном графитовом фоне вместо буквы «S».
+- Релизы теперь называются по версии: версия Telegram + номер нашего релиза. Это **13.2.1.1**, первый релиз Shadowgram на Telegram 13.2.1.
 
-## What's new
+## What's new (since build 21)
 
-- Ugram is now **Shadowgram**: new name, "S" app icons and a "SHADOWGRAM" badge by the Dynamic Island.
-- **Instant notifications** through the free ntfy app: Shadowgram Tools → Chats → "Instant notifications".
-- Telegram-style icons on the Shadowgram Tools main screen; extra emoji removed.
-- All texts in Tools use our name now (Swiftgram no longer downloads its own texts).
-- The Swiftgram "β Beta" icon was removed.
+- **New app icon**: a 👻 ghost on a dark graphite background instead of the "S".
+- Releases are now named by version: the Telegram version plus our release number. This is **13.2.1.1**, the first Shadowgram release on Telegram 13.2.1.
 
 ---
-Неподписанный IPA — подпишите его сами (Feather, ESign, Sideloadly, AltStore).
-Unsigned IPA — sign it yourself (Feather, ESign, Sideloadly, AltStore) before installing.
+Неподписанный IPA — подпишите его сами (Feather, ESign, Sideloadly, AltStore). Иконку из приложения iOS сменить не даёт, её можно выбрать в Feather при подписи.
+Unsigned IPA — sign it yourself (Feather, ESign, Sideloadly, AltStore) before installing. iOS won't let the app change its own icon after re-signing; pick it in Feather when signing.
