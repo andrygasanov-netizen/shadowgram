@@ -1751,6 +1751,50 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 }
             }
             
+            // MARK: Ugram - background refresh: sync, then report new unread messages with a local notification.
+            BGTaskScheduler.shared.register(forTaskWithIdentifier: UgramBackgroundRefresh.identifier(), using: DispatchQueue.main) { task in
+                UgramBackgroundRefresh.schedule()
+                guard UgramBackgroundRefresh.isEnabled else {
+                    task.setTaskCompleted(success: true)
+                    return
+                }
+                var latestCount: Int32?
+                var finished = false
+                let badgeDisposable = (self.context.get()
+                |> mapToSignal { context -> Signal<Int32, NoError> in
+                    if let context = context {
+                        return context.applicationBadge
+                    } else {
+                        return .single(0)
+                    }
+                }
+                |> deliverOnMainQueue).start(next: { count in
+                    latestCount = count
+                })
+                let finish: (Bool) -> Void = { success in
+                    if finished {
+                        return
+                    }
+                    finished = true
+                    badgeDisposable.dispose()
+                    if success, let latestCount = latestCount {
+                        UgramBackgroundRefresh.report(count: Int(latestCount))
+                    }
+                    task.setTaskCompleted(success: success)
+                }
+                task.expirationHandler = {
+                    finish(true)
+                }
+                let _ = (self.sharedContextPromise.get()
+                |> take(1)
+                |> deliverOnMainQueue).start(next: { sharedApplicationContext in
+                    sharedApplicationContext.wakeupManager.replaceCurrentExtensionWithExternalTime(completion: {}, timeout: 27.0)
+                })
+                DispatchQueue.main.asyncAfter(deadline: .now() + 20.0, execute: {
+                    finish(true)
+                })
+            }
+
             BGTaskScheduler.shared.getPendingTaskRequests(completionHandler: { tasks in
                 if tasks.contains(where: { $0.identifier == cleanupTaskId }) {
                     Logger.shared.log("App \(self.episodeId)", "Already have a cleanup task pending")
@@ -2195,6 +2239,10 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         
         UgramUnreadReminder.schedule() // MARK: Ugram
         UgramChatPrivacy.shared.relockAll() // MARK: Ugram
+        if #available(iOS 13.0, *) { // MARK: Ugram
+            UgramBackgroundRefresh.rememberCurrentCount(UIApplication.shared.applicationIconBadgeNumber)
+            UgramBackgroundRefresh.schedule()
+        }
         
         final class TaskIdHolder {
             var taskId: UIBackgroundTaskIdentifier?
@@ -2216,6 +2264,9 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
 
     func handleWillEnterForeground() {
         UgramUnreadReminder.cancel() // MARK: Ugram
+        if #available(iOS 13.0, *) { // MARK: Ugram
+            UgramBackgroundRefresh.clearNotification()
+        }
         if self.isActiveValue {
             self.isInForegroundValue = true
             self.isInForegroundPromise.set(true)

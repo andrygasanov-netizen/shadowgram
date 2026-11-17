@@ -185,6 +185,7 @@ private enum SGBoolSetting: String {
     case ugramAutoApproveJoinRequests
     case ugramAutoSticker
     case ugramUnlimitedPins
+    case ugramBackgroundNotifications
 }
 
 private enum SGOneFromManySetting: String {
@@ -317,6 +318,8 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Закрепляйте сколько угодно чатов. Закрепы сверх лимита Telegram хранятся только на этом устройстве.", "Pin as many chats as you like. Pins over the Telegram limit are kept on this device only.")))
     entries.append(.oneFromManySelector(id: id.count, section: .ugramChatList, settingName: .ugramUnreadReminder, text: t("Напоминать о непрочитанном", "Unread reminder"), value: ugramReminderTitle(ugram.int("ugramUnreadReminderHours", default: 0), isRussian: isRussian), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Если вы закрыли Ugram, а непрочитанные сообщения остались, через выбранное время придёт напоминание.", "If you leave Ugram with unread messages, a reminder arrives after the chosen time.")))
+    entries.append(.toggle(id: id.count, section: .ugramChatList, settingName: .ugramBackgroundNotifications, value: ugram.bool("ugramBackgroundNotifications", default: false), text: t("Фоновые уведомления 🔔", "Background notifications 🔔"), enabled: true))
+    entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Обычные пуши в переподписанном Ugram не работают. Вместо них iOS иногда будит приложение в фоне (обычно раз в 15 минут – несколько часов, как решит система), Ugram синхронизируется и присылает уведомление о новых сообщениях. Не закрывайте Ugram смахиванием и не отключайте «Обновление контента» в настройках iPhone.", "Regular push doesn't work in a re-signed Ugram. Instead iOS wakes the app in the background now and then (usually every 15 minutes to a few hours, as the system decides); Ugram syncs and notifies you about new messages. Don't swipe Ugram away and keep Background App Refresh on.")))
 
     entries.append(.header(id: id.count, section: .ugramGhost, text: t("РЕЖИМ ПРИЗРАКА", "GHOST MODE"), badge: nil))
     entries.append(.toggle(id: id.count, section: .ugramGhost, settingName: .ugramNoReadReceipts, value: ugram.bool("ugramNoReadReceipts", default: false), text: t("Не отправлять «прочитано»", "Don't send read receipts"), enabled: true))
@@ -739,6 +742,8 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             UgramSettings.shared.setBool(value, for: "ugramHideOnline")
         case .ugramDisableAutoDownload:
             UgramSettings.shared.setBool(value, for: "ugramDisableAutoDownload")
+        case .ugramBackgroundNotifications:
+            UgramSettings.shared.setBool(value, for: "ugramBackgroundNotifications")
         case .ugramAutoApproveJoinRequests:
             UgramSettings.shared.setBool(value, for: "ugramAutoApproveJoinRequests")
         case .ugramEditHistory:
