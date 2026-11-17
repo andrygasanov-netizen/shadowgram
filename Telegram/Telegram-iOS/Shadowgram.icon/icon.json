@@ -1,0 +1,43 @@
+{
+  "fill": {
+    "linear-gradient": [
+      "srgb:0.18039,0.18824,0.21961,1.00000",
+      "srgb:0.04706,0.05098,0.06275,1.00000"
+    ],
+    "orientation": {
+      "start": {
+        "x": 0.3,
+        "y": 0
+      },
+      "stop": {
+        "x": 0.7,
+        "y": 1
+      }
+    }
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "glass": false,
+          "image-name": "ghost.png",
+          "name": "ghost"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

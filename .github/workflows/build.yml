@@ -1,0 +1,152 @@
+name: Build Shadowgram IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Shadowgram version: Telegram version + our release, e.g. 13.2.1.1 or 13.2.1.1a"
+        required: false
+        default: ""
+      publish:
+        description: "Publish a GitHub release (off = only check that it builds)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ugram-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 350
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Show environment
+        run: |
+          sw_vers
+          xcode-select -p
+          xcodebuild -version
+          df -h /
+          sysctl -n hw.ncpu hw.memsize
+
+      - name: Restore bazel cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/ugram-bazel-cache
+          key: ugram-bazel-${{ github.run_id }}
+          restore-keys: |
+            ugram-bazel-
+
+      - name: Write build configuration
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+        run: |
+          if [ -z "$API_ID" ] || [ -z "$API_HASH" ]; then
+            echo "API_ID / API_HASH repository secrets are not set"
+            exit 1
+          fi
+          python3 - <<'EOF'
+          import json, os
+          with open('build-system/appstore-configuration.json') as f:
+              config = json.load(f)
+          config['api_id'] = os.environ['API_ID']
+          config['api_hash'] = os.environ['API_HASH']
+          config.setdefault('sg_config', '')
+          # Re-signing tools (Feather, ESign, Sideloadly) drop the iCloud entitlement;
+          # CKContainer.default() then throws an ObjC exception and the app aborts at launch.
+          config['enable_icloud'] = False
+          with open(os.path.expanduser('~/ugram-configuration.json'), 'w') as f:
+              json.dump(config, f)
+          EOF
+
+      - name: Build the app
+        run: |
+          set -x
+          BUILD_NUMBER=$((100000 + GITHUB_RUN_NUMBER))
+          # The bundled fake provisioning profiles are expired; the IPA is re-signed by the user anyway.
+          PLISTTOOL=build-system/bazel-rules/rules_apple/tools/plisttool/plisttool.py
+          sed -i '' "s/expire = self._profile_metadata.get('ExpirationDate')/expire = None/" "$PLISTTOOL"
+          grep -n "expire = None" "$PLISTTOOL"
+          python3 build-system/Make/ImportCertificates.py --path build-system/fake-codesigning/certs
+          python3 -u build-system/Make/Make.py \
+            --overrideXcodeVersion \
+            --cacheDir="$HOME/ugram-bazel-cache" \
+            build \
+            --configurationPath="$HOME/ugram-configuration.json" \
+            --codesigningInformationPath=build-system/fake-codesigning \
+            --configuration=release_arm64 \
+            --buildNumber="$BUILD_NUMBER" \
+            --outputBuildArtifactsPath=build/artifacts
+          ls -la build/artifacts
+
+      - name: Change bundle identifier
+        run: |
+          set -e
+          # The official Telegram app uses ph.telegra.Telegraph; an IPA with the same identifier
+          # cannot be installed next to it. The IPA is re-signed by the user, so rewriting is safe.
+          OLD_ID="ph.telegra.Telegraph"
+          NEW_ID="app.ugram.ios"
+          WORK="$RUNNER_TEMP/ipa"
+          rm -rf "$WORK" && mkdir -p "$WORK"
+          unzip -q build/artifacts/Shadowgram.ipa -d "$WORK"
+          find "$WORK/Payload" -name Info.plist -maxdepth 4 | while read -r plist; do
+            current=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$plist" 2>/dev/null || true)
+            case "$current" in
+              "$OLD_ID"*)
+                updated="$NEW_ID${current#$OLD_ID}"
+                /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $updated" "$plist"
+                echo "$plist: $current -> $updated"
+                ;;
+            esac
+          done
+          rm build/artifacts/Shadowgram.ipa
+          (cd "$WORK" && zip -qry "$GITHUB_WORKSPACE/build/artifacts/Shadowgram.ipa" Payload)
+          ls -la build/artifacts
+
+      - name: Publish release
+        if: ${{ inputs.publish }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Every build gets its own release; older releases are kept.
+          # Named by version: Telegram version + our release number (+ a letter for small updates).
+          VERSION="${{ inputs.version }}"
+          if [ -n "$VERSION" ]; then
+            TAG="ios-v$VERSION"; TITLE="Shadowgram $VERSION (iOS)"
+          else
+            TAG="ios-build-${{ github.run_number }}"; TITLE="Shadowgram iOS (build ${{ github.run_number }})"
+          fi
+          gh release create "$TAG" build/artifacts/Shadowgram.ipa \
+            --title "$TITLE" \
+            --notes-file .github/RELEASE_NOTES.md \
+            --target "$GITHUB_SHA" \
+            --latest
+
+      - name: Trim bazel cache
+        if: always()
+        run: |
+          du -sh ~/ugram-bazel-cache || true
+          df -h /
+
+      - name: Save bazel cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/ugram-bazel-cache
+          key: ugram-bazel-${{ github.run_id }}
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shadowgram-ipa
+          path: build/artifacts/Shadowgram.ipa
+          if-no-files-found: error
