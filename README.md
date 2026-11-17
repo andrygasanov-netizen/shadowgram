@@ -6,7 +6,7 @@
 
 ## Установка
 
-1. Скачайте `Ugram.ipa` со страницы [последнего релиза](https://github.com/andrygasanov-netizen/ugram/releases/tag/latest).
+1. Скачайте `Ugram.ipa` со страницы [последнего релиза](https://github.com/andrygasanov-netizen/ugram/releases/latest).
 2. Подпишите и установите через Feather, ESign, Sideloadly или AltStore.
 3. Откройте приложение и войдите в свой аккаунт Telegram.
 

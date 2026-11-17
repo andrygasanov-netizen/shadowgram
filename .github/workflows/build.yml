@@ -108,11 +108,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete latest --yes --cleanup-tag || true
-          gh release create latest build/artifacts/Ugram.ipa \
-            --title "Ugram (build ${{ github.run_number }})" \
-            --notes "Unsigned IPA. Sign it yourself (ESign, Sideloadly, AltStore) before installing." \
-            --target "$GITHUB_SHA"
+          # Every build gets its own release; older releases are kept.
+          gh release create "ios-build-${{ github.run_number }}" build/artifacts/Ugram.ipa \
+            --title "Ugram iOS (build ${{ github.run_number }})" \
+            --notes "Unsigned IPA. Sign it yourself (Feather, ESign, Sideloadly, AltStore) before installing." \
+            --target "$GITHUB_SHA" \
+            --latest
 
       - name: Trim bazel cache
         if: always()
