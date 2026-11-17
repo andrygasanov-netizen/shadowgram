@@ -202,6 +202,7 @@ private enum SGOneFromManySetting: String {
     case ugramAdminFolders
     case ugramUnreadReminder
     case ugramRecommended
+    case ugramIslandBadge
 }
 
 // MARK: Ugram
@@ -216,6 +217,23 @@ private let ugramTextStyles: [(value: String, ru: String, en: String)] = [
 ]
 
 private let ugramReminderHours: [Int] = [0, 1, 3, 6, 12, 24]
+
+// MARK: Ugram - the badge drawn beside the Dynamic Island.
+private let ugramIslandBadges: [(value: String, ru: String, en: String)] = [
+    ("", "Зелёный", "Green"),
+    ("UgramBlueAppBadge", "Синий", "Blue"),
+    ("UgramPurpleAppBadge", "Фиолетовый", "Purple"),
+    ("UgramOrangeAppBadge", "Оранжевый", "Orange"),
+    ("UgramBlackAppBadge", "Чёрный", "Black"),
+    ("hidden", "Скрыть", "Hidden"),
+]
+
+private func ugramIslandBadgeTitle(_ value: String, isRussian: Bool) -> String {
+    for badge in ugramIslandBadges where badge.value == value {
+        return isRussian ? badge.ru : badge.en
+    }
+    return isRussian ? "Зелёный" : "Green"
+}
 
 private func ugramReminderTitle(_ hours: Int, isRussian: Bool) -> String {
     if hours <= 0 {
@@ -356,6 +374,9 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
         id.increment(1)
     }
     
+    entries.append(.header(id: id.count, section: .tabs, text: t("DYNAMIC ISLAND", "DYNAMIC ISLAND"), badge: nil)) // MARK: Ugram
+    entries.append(.oneFromManySelector(id: id.count, section: .tabs, settingName: .ugramIslandBadge, text: t("Значок Ugram у острова", "Ugram badge by the island"), value: ugramIslandBadgeTitle(SGSimpleSettings.shared.customAppBadge, isRussian: isRussian), enabled: true))
+    entries.append(.notice(id: id.count, section: .tabs, text: t("Плашка «⚡ UGRAM» рядом с Dynamic Island. Выберите цвет или скройте её.", "The \"⚡ UGRAM\" badge beside the Dynamic Island. Pick a colour or hide it.")))
     entries.append(.header(id: id.count, section: .tabs, text: i18n("Settings.Tabs.Header", lang), badge: nil))
     entries.append(.toggle(id: id.count, section: .tabs, settingName: .hideTabBar, value: SGSimpleSettings.shared.hideTabBar, text: i18n("Settings.Tabs.HideTabBar", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .tabs, settingName: .showContactsTab, value: callListSettings.showContactsTab, text: i18n("Settings.Tabs.ShowContacts", lang), enabled: !SGSimpleSettings.shared.hideTabBar))
@@ -819,6 +840,22 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
         switch (setting) {
             case .ugramAutoPostfix, .ugramAdminFolders, .ugramRecommended:
                 break
+            case .ugramIslandBadge:
+                let current = SGSimpleSettings.shared.customAppBadge
+                for badge in ugramIslandBadges {
+                    options.append(SGOneFromManyOption(title: isRussian ? badge.ru : badge.en, isSelected: current == badge.value, action: {
+                        SGSimpleSettings.shared.customAppBadge = badge.value
+                        if let badgeView = context.sharedContext.mainWindow?.badgeView {
+                            if badge.value == "hidden" {
+                                badgeView.isHidden = true
+                            } else {
+                                badgeView.image = UIImage(bundleImageName: badge.value.isEmpty ? "Components/AppBadge" : badge.value) ?? UIImage(bundleImageName: "Components/AppBadge")
+                                badgeView.isHidden = false
+                            }
+                        }
+                        simplePromise.set(true)
+                    }))
+                }
             case .ugramUnreadReminder:
                 let current = UgramSettings.shared.int("ugramUnreadReminderHours", default: 0)
                 for hours in ugramReminderHours {

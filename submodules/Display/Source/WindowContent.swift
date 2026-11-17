@@ -491,7 +491,7 @@ public class Window1 {
     public init(hostView: WindowHostView, statusBarHost: StatusBarHost?) {
         self.hostView = hostView
         self.badgeView = UIImageView()
-        if SGSimpleSettings.shared.status > 1, let image = UIImage(bundleImageName: SGSimpleSettings.shared.customAppBadge) {
+        if let image = UIImage(bundleImageName: SGSimpleSettings.shared.customAppBadge) { // MARK: Ugram - colour without Pro
             self.badgeView.image = image
         } else {
         self.badgeView.image = UIImage(bundleImageName: "Components/AppBadge")
@@ -955,10 +955,10 @@ public class Window1 {
     }
     
     private func updateBadgeVisibility() {
-        let badgeIsHidden = !self.deviceMetrics.showAppBadge || self.forceBadgeHidden || self.windowLayout.size.width > self.windowLayout.size.height
+        let badgeIsHidden = !self.deviceMetrics.showAppBadge || self.forceBadgeHidden || self.windowLayout.size.width > self.windowLayout.size.height || SGSimpleSettings.shared.customAppBadge == "hidden" // MARK: Ugram
         if badgeIsHidden != self.badgeView.isHidden && !badgeIsHidden {
             Queue.mainQueue().after(0.4) {
-                let badgeShouldBeHidden = !self.deviceMetrics.showAppBadge || self.forceBadgeHidden || self.windowLayout.size.width > self.windowLayout.size.height
+                let badgeShouldBeHidden = !self.deviceMetrics.showAppBadge || self.forceBadgeHidden || self.windowLayout.size.width > self.windowLayout.size.height || SGSimpleSettings.shared.customAppBadge == "hidden" // MARK: Ugram
                 if badgeShouldBeHidden == badgeIsHidden {
                     self.badgeView.isHidden = badgeIsHidden
                 }
