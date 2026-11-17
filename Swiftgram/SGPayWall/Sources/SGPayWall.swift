@@ -371,7 +371,7 @@ struct SGPayWallView: View {
                         
                         // Title and Subtitle
                         VStack(spacing: 8) {
-                            Text("Ugram Pro")
+                            Text("Shadowgram Pro")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                             

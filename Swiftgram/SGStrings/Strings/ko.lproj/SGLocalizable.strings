@@ -97,7 +97,7 @@
 "ContextMenu.SelectFromUser" = "사용자에서 선택";
 
 "Settings.ContextMenu" = "컨텍스트 메뉴";
-"Settings.ContextMenu.Notice" = "'Ugram' 하위 메뉴에서 비활성화된 항목을 사용할 수 있습니다.";
+"Settings.ContextMenu.Notice" = "'Shadowgram' 하위 메뉴에서 비활성화된 항목을 사용할 수 있습니다.";
 
 
 "Settings.ChatSwipeOptions" = "채팅 목록 스와이프 옵션";
@@ -123,7 +123,7 @@
 "Chat.Created.Label" = "생성됨";
 "Chat.Created.Copied" = "생성 날짜가 복사되었습니다";
 
-/* Date when user joined the chat. "Joined Ugram Chat" */
+/* Date when user joined the chat. "Joined Shadowgram Chat" */
 "Chat.JoinedDateTitle" = "%@에 가입함";
 "Chat.JoinedDate.Copied" = "참여 날짜가 복사되었습니다";
 /* Date when user registered in Telegram. Will be shown like "Registered\n24 May 2016" */

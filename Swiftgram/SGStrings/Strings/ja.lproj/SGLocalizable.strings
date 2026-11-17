@@ -99,7 +99,7 @@
 "ContextMenu.SelectFromUser" = "全て選択";
 
 "Settings.ContextMenu" = "コンテキスト メニュー";
-"Settings.ContextMenu.Notice" = "無効化されたエントリは、「Ugram」サブメニューから利用できます。";
+"Settings.ContextMenu.Notice" = "無効化されたエントリは、「Shadowgram」サブメニューから利用できます。";
 
 
 "Settings.ChatSwipeOptions" = "チャットリストのスワイプ設定";
@@ -126,7 +126,7 @@
 "Chat.Created.Label" = "作成済み";
 "Chat.Created.Copied" = "作成日をコピーしました";
 
-/* Date when user joined the chat. "Joined Ugram Chat" */
+/* Date when user joined the chat. "Joined Shadowgram Chat" */
 "Chat.JoinedDateTitle" = "%@ に参加しました";
 "Chat.JoinedDate.Copied" = "参加日をコピーしました";
 /* Date when user registered in Telegram. Will be shown like "Registered\n24 May 2016" */
@@ -149,7 +149,7 @@
 "Settings.secondsInMessages" = "メッセージ内の秒数";
 
 "Settings.CallConfirmation" = "コール確認";
-"Settings.CallConfirmation.Notice" = "Ugram は、通話を行う前にあなたの確認を求めます。";
+"Settings.CallConfirmation.Notice" = "Shadowgram は、通話を行う前にあなたの確認を求めます。";
 
 /* Confirmation before making a Call */
 "CallConfirmation.Audio.Title" = "通話をかけますか？";
@@ -219,8 +219,8 @@
 "PayWall.AppIcons.Title" = "ユニークなアプリアイコン";
 "PayWall.AppIcons.Notice" = "ホーム画面でUgramの外観をカスタマイズします。";
 
-"PayWall.About.Title" = "Ugram Proについて";
-"PayWall.About.Notice" = "Ugramの無料版は、Telegramアプリ上で数十の機能と改善を提供します。 毎月のTelegramのアップデートとUgramの同期を革新し、維持することは多くの時間と高価なハードウェアを必要とする膨大な努力です。\n\nUgramはプライバシーを尊重し、広告を気にしないオープンソースのアプリです。 Ugram Proに登録すると、排他的な機能にアクセスでき、独立した開発者をサポートできます。";
+"PayWall.About.Title" = "Shadowgram Proについて";
+"PayWall.About.Notice" = "Ugramの無料版は、Telegramアプリ上で数十の機能と改善を提供します。 毎月のTelegramのアップデートとUgramの同期を革新し、維持することは多くの時間と高価なハードウェアを必要とする膨大な努力です。\n\nUgramはプライバシーを尊重し、広告を気にしないオープンソースのアプリです。 Shadowgram Proに登録すると、排他的な機能にアクセスでき、独立した開発者をサポートできます。";
 /* DO NOT TRANSLATE */
 "PayWall.About.Signature" = "@Kylmakalle";
 /* DO NOT TRANSLATE */
@@ -234,8 +234,8 @@
 "PayWall.Privacy" = "プライバシーポリシー";
 "PayWall.TermsURL" = "https://swiftgram.app/terms";
 "PayWall.PrivacyURL" = "https://swiftgram.app/privacy";
-"PayWall.Notice.Markdown" = "Ugram Proに購読することで、[Ugram利用規約](%1$@)と[プライバシーポリシー](%2$@)に同意したことになります。";
-"PayWall.Notice.Raw" = "Ugram Proに購読することで、Ugramの利用規約とプライバシーポリシーに同意したことになります。";
+"PayWall.Notice.Markdown" = "Shadowgram Proに購読することで、[Ugram利用規約](%1$@)と[プライバシーポリシー](%2$@)に同意したことになります。";
+"PayWall.Notice.Raw" = "Shadowgram Proに購読することで、Ugramの利用規約とプライバシーポリシーに同意したことになります。";
 
 "PayWall.Button.OpenPro" = "プロ機能を使用する";
 "PayWall.Button.Purchasing" = "購入中…";

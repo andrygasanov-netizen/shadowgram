@@ -15,7 +15,7 @@
 /* Example: Hide "All Chats" */
 "Settings.Folders.AllChatsHidden" = "Piilota \"%@\"";
 "Settings.Folders.RememberLast" = "Avaa viimeisin kansio";
-"Settings.Folders.RememberLast.Notice" = "Ugram avaa viimeksi käytetyn kansion uudelleenkäynnistyksen tai tilin vaihdon jälkeen.";
+"Settings.Folders.RememberLast.Notice" = "Shadowgram avaa viimeksi käytetyn kansion uudelleenkäynnistyksen tai tilin vaihdon jälkeen.";
 
 "Settings.Folders.CompactNames" = "Pienempi väli";
 "Settings.Folders.AllChatsTitle" = "\"Kaikki chatit\" otsikko";
@@ -98,7 +98,7 @@
 "ContextMenu.SelectFromUser" = "Valitse Tekijältä";
 
 "Settings.ContextMenu" = "KONTEKSTIVALIKKO";
-"Settings.ContextMenu.Notice" = "Poistetut kohteet ovat saatavilla 'Ugram'-alavalikossa.";
+"Settings.ContextMenu.Notice" = "Poistetut kohteet ovat saatavilla 'Shadowgram'-alavalikossa.";
 
 
 "Settings.ChatSwipeOptions" = "Chat List Swipe Options";
@@ -125,7 +125,7 @@
 "Chat.Created.Label" = "luotu";
 "Chat.Created.Copied" = "Luontipäivä kopioitu";
 
-/* Date when user joined the chat. "Joined Ugram Chat" */
+/* Date when user joined the chat. "Joined Shadowgram Chat" */
 "Chat.JoinedDateTitle" = "liittyi %@";
 "Chat.JoinedDate.Copied" = "Liittymispäivä kopioitu";
 /* Date when user registered in Telegram. Will be shown like "Registered\n24 May 2016" */
@@ -146,7 +146,7 @@
 "Settings.showChannelBottomButton" = "Kanavan ala-paneeli";
 
 "Settings.CallConfirmation" = "Puhelun vahvistus";
-"Settings.CallConfirmation.Notice" = "Ugram pyytää vahvistustasi ennen puhelun soittamista.";
+"Settings.CallConfirmation.Notice" = "Shadowgram pyytää vahvistustasi ennen puhelun soittamista.";
 
 /* Confirmation before making a Call */
 "CallConfirmation.Audio.Title" = "Soita puhelu?";
@@ -212,16 +212,16 @@
 "PayWall.AppIcons.Title" = "Ainutlaatuiset sovelluskuvakkeet";
 "PayWall.AppIcons.Notice" = "Mukauta Ugramin ulkoasu aloitusnäytölläsi.";
 
-"PayWall.About.Title" = "Tietoja Ugram Prosta";
-"PayWall.About.Notice" = "Ugramin ilmainen versio tarjoaa kymmeniä ominaisuuksia ja parannuksia Telegram-sovellukseen verrattuna. Innovointi ja Ugramin synkronointi kuukausittaisiin Telegram-päivityksiin vaatii valtavasti aikaa ja kallista laitteistoa.\n\nUgram on avoimen lähdekoodin sovellus, joka kunnioittaa yksityisyyttäsi eikä vaivaa sinua mainoksilla. Tilatessasi Ugram Prota saat pääsyn eksklusiivisiin ominaisuuksiin ja tuet itsenäistä kehittäjää.\n\n- @Kylmakalle";
+"PayWall.About.Title" = "Tietoja Shadowgram Prosta";
+"PayWall.About.Notice" = "Ugramin ilmainen versio tarjoaa kymmeniä ominaisuuksia ja parannuksia Telegram-sovellukseen verrattuna. Innovointi ja Ugramin synkronointi kuukausittaisiin Telegram-päivityksiin vaatii valtavasti aikaa ja kallista laitteistoa.\n\nUgram on avoimen lähdekoodin sovellus, joka kunnioittaa yksityisyyttäsi eikä vaivaa sinua mainoksilla. Tilatessasi Shadowgram Prota saat pääsyn eksklusiivisiin ominaisuuksiin ja tuet itsenäistä kehittäjää.\n\n- @Kylmakalle";
 
 "PayWall.RestorePurchases" = "Palauta ostot";
 "PayWall.Terms" = "Käyttöehdot";
 "PayWall.Privacy" = "Tietosuojakäytäntö";
 "PayWall.TermsURL" = "https://swiftgram.app/ehtosuhteet";
 "PayWall.PrivacyURL" = "https://swiftgram.app/tietosuoja";
-"PayWall.Notice.Markdown" = "Tilatessasi Ugram Prota hyväksyt [Ugramin käyttöehdot](%1$@) ja [tietosuojakäytännön](%2$@).";
-"PayWall.Notice.Raw" = "Tilatessasi Ugram Prota hyväksyt Ugramin käyttöehdot ja tietosuojakäytännön.";
+"PayWall.Notice.Markdown" = "Tilatessasi Shadowgram Prota hyväksyt [Ugramin käyttöehdot](%1$@) ja [tietosuojakäytännön](%2$@).";
+"PayWall.Notice.Raw" = "Tilatessasi Shadowgram Prota hyväksyt Ugramin käyttöehdot ja tietosuojakäytännön.";
 
 "PayWall.Button.OpenPro" = "Käytä Pro-ominaisuuksia";
 "PayWall.Button.Purchasing" = "Ostetaan...";

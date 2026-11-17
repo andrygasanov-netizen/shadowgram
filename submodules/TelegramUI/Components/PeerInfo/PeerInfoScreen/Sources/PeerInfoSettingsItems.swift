@@ -45,7 +45,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     }
     
     // MARK: Ugram
-    items[.ugram]!.append(PeerInfoScreenDisclosureItem(id: 0, text: "Ugram Tools", icon: PresentationResourcesSettings.ugram, action: {
+    items[.ugram]!.append(PeerInfoScreenDisclosureItem(id: 0, text: "Shadowgram Tools", icon: PresentationResourcesSettings.ugram, action: {
         interaction.openSettings(.ugram)
     }))
 

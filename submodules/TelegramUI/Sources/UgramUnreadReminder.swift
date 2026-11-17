@@ -17,7 +17,7 @@ enum UgramUnreadReminder {
         }
         let isRussian = (Locale.preferredLanguages.first ?? "").hasPrefix("ru")
         let content = UNMutableNotificationContent()
-        content.title = "Ugram"
+        content.title = "Shadowgram"
         content.body = isRussian ? "Непрочитанных сообщений: \(count). Загляните, пока не забыли." : "You have \(count) unread messages."
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(hours * 60 * 60), repeats: false)

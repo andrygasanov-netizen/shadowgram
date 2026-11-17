@@ -52,7 +52,7 @@ enum UgramBackgroundRefresh {
         }
         let isRussian = (Locale.preferredLanguages.first ?? "").hasPrefix("ru")
         let content = UNMutableNotificationContent()
-        content.title = "Ugram"
+        content.title = "Shadowgram"
         let newCount = count - last
         content.body = isRussian ? "Новых сообщений: \(newCount). Всего непрочитанных: \(count)." : "New messages: \(newCount). Unread in total: \(count)."
         content.sound = .default

@@ -18,7 +18,7 @@
 /* Example: Hide "All Chats" */
 "Settings.Folders.AllChatsHidden" = "Ocultar \"%@\"";
 "Settings.Folders.RememberLast" = "Abrir última pasta";
-"Settings.Folders.RememberLast.Notice" = "O Ugram abrirá a última pasta usada após reiniciar ou trocar de conta";
+"Settings.Folders.RememberLast.Notice" = "O Shadowgram abrirá a última pasta usada após reiniciar ou trocar de conta";
 
 "Settings.Folders.CompactNames" = "Espaçamento Menor";
 "Settings.Folders.AllChatsTitle" = "Título \"Todos os bate-papos\"";
@@ -44,7 +44,7 @@
 /* Do not translate */
 "Settings.Translation.Backend.gtranslate" = "GTranslate";
 "Settings.Translation.Backend.system" = "Sistema";
-"Settings.Translation.Backend.Notice" = "O Ugram usará %@ caso o serviço de tradução selecionado não esteja disponível.";
+"Settings.Translation.Backend.Notice" = "O Shadowgram usará %@ caso o serviço de tradução selecionado não esteja disponível.";
 
 "Settings.Transcription.Header" = "VOZ PARA TEXTO";
 "Settings.Transcription.Backend" = "Serviço";
@@ -52,7 +52,7 @@
 "Settings.Transcription.Backend.default" = "Telegram";
 /* Do not translate */
 "Settings.Transcription.Backend.apple" = "Apple";
-"Settings.Transcription.Backend.Notice" = "O Ugram usará %@ caso o serviço de transcrição selecionado não esteja disponível.";
+"Settings.Transcription.Backend.Notice" = "O Shadowgram usará %@ caso o serviço de transcrição selecionado não esteja disponível.";
 
 "Stories.Warning.Author" = "Autor";
 "Stories.Warning.ViewStory" = "Ver Story?";
@@ -101,7 +101,7 @@
 "Common.RestartRequired" = "Reinício necessário";
 "Common.RestartNow" = "Reiniciar agora";
 "Common.OpenTelegram" = "Abrir Telegram";
-"Common.UseTelegramForPremium" = "Observe que para obter o Telegram Premium, você precisa usar o aplicativo oficial do Telegram. Depois de obter o Telegram Premium, todos os seus recursos ficarão disponíveis no Ugram.";
+"Common.UseTelegramForPremium" = "Observe que para obter o Telegram Premium, você precisa usar o aplicativo oficial do Telegram. Depois de obter o Telegram Premium, todos os seus recursos ficarão disponíveis no Shadowgram.";
 "Common.UpdateOS" = "Atualização do iOS necessária";
 "Common.KnowWhatYouDo" = "Por favor, mude estas configurações apenas se souber o que elas fazem.";
 
@@ -117,7 +117,7 @@
 "ContextMenu.SelectFromUser" = "Selecionar do Autor";
 
 "Settings.ContextMenu" = "MENU DE CONTEXTO";
-"Settings.ContextMenu.Notice" = "Entradas desativadas estarão disponíveis no sub-menu 'Ugram'.";
+"Settings.ContextMenu.Notice" = "Entradas desativadas estarão disponíveis no sub-menu 'Shadowgram'.";
 
 
 "Settings.ChatSwipeOptions" = "Opções de deslizar Lista de Chat";
@@ -144,7 +144,7 @@
 "Chat.Created.Label" = "data de criação";
 "Chat.Created.Copied" = "Data de criação copiada";
 
-/* Date when user joined the chat. "Joined Ugram Chat" */
+/* Date when user joined the chat. "Joined Shadowgram Chat" */
 "Chat.JoinedDateTitle" = "entrou em %@";
 "Chat.JoinedDate.Copied" = "Data de entrada copiada";
 /* Date when user registered in Telegram. Will be shown like "Registered\n24 May 2016" */
@@ -167,7 +167,7 @@
 "Settings.secondsInMessages" = "Segundos em Mensagens";
 
 "Settings.CallConfirmation" = "Confirmação de chamada";
-"Settings.CallConfirmation.Notice" = "O Ugram pedirá sua confirmação antes de fazer uma chamada.";
+"Settings.CallConfirmation.Notice" = "O Shadowgram pedirá sua confirmação antes de fazer uma chamada.";
 
 /* Confirmation before making a Call */
 "CallConfirmation.Audio.Title" = "Fazer uma Chamada?";
@@ -192,11 +192,11 @@
 "SessionBackup.LoggedIn" = "Conectado";
 "SessionBackup.LoggedOut" = "Desconectado";
 "SessionBackup.DeleteAll.Title" = "Excluir Todas as Sessões?";
-"SessionBackup.DeleteAll.Text" = "Todas as sessões serão removidas do Keychain.\n\nAs contas não serão desconectadas do Ugram.";
+"SessionBackup.DeleteAll.Text" = "Todas as sessões serão removidas do Keychain.\n\nAs contas não serão desconectadas do Shadowgram.";
 "SessionBackup.DeleteSingle.Title" = "Excluir 1 (uma) Sessão?";
-"SessionBackup.DeleteSingle.Text" = "%@ sessão será removida do Keychain.\n\nA conta não será desconectada do Ugram.";
+"SessionBackup.DeleteSingle.Text" = "%@ sessão será removida do Keychain.\n\nA conta não será desconectada do Shadowgram.";
 "SessionBackup.RemoveFromApp.Title" = "Remover conta do App?";
-"SessionBackup.RemoveFromApp.Text" = "%@ sessão SERÁ REMOVIDA do Ugram! A sessão permanecerá ativa, para que você possa restaurá-la mais tarde.";
+"SessionBackup.RemoveFromApp.Text" = "%@ sessão SERÁ REMOVIDA do Shadowgram! A sessão permanecerá ativa, para que você possa restaurá-la mais tarde.";
 "SessionBackup.Notice" = "As sessões são criptografadas e armazenadas no Acesso às Chaves do dispositivo. As sessões nunca saem do seu dispositivo.\n\nIMPORTANTE: Para restaurar sessões em um novo dispositivo ou após a redefinição do sistema operacional, você DEVE habilitar backups criptografados, caso contrário o Keychain não será transferido.\n\nNOTA: as sessões ainda podem ser revogadas pelo Telegram ou de outro dispositivo.";
 
 "MessageFilter.Title" = "Filtro de Mensagens";
@@ -220,11 +220,11 @@
 
 "PayWall.SessionBackup.Title" = "Backup de Sessão";
 "PayWall.SessionBackup.Notice" = "Faça login em contas sem código, mesmo depois de reinstalar. Armazenamento seguro com Keychain no dispositivo.";
-"PayWall.SessionBackup.Description" = "Alterar o dispositivo ou excluir o Ugram não é mais um problema. Restaure todas as sessões que ainda estão ativas nos servidores do Telegram.";
+"PayWall.SessionBackup.Description" = "Alterar o dispositivo ou excluir o Shadowgram não é mais um problema. Restaure todas as sessões que ainda estão ativas nos servidores do Telegram.";
 
 "PayWall.MessageFilter.Title" = "Filtro de Mensagens";
 "PayWall.MessageFilter.Notice" = "Reduza a visibilidade de SPAM, promoções e mensagens irritantes.";
-"PayWall.MessageFilter.Description" = "Crie uma lista de palavras-chave que você não quer ver frequentemente e o Ugram reduzirá as distrações.";
+"PayWall.MessageFilter.Description" = "Crie uma lista de palavras-chave que você não quer ver frequentemente e o Shadowgram reduzirá as distrações.";
 
 "PayWall.Notifications.Title" = "Desativar @menções e respostas";
 "PayWall.Notifications.Notice" = "Oculte ou silencie notificações não importantes.";
@@ -235,10 +235,10 @@
 "PayWall.InputToolbar.Description" = "Aplique e limpe a formatação ou insira novas linhas como um profissional.";
 
 "PayWall.AppIcons.Title" = "Ícones de Aplicativos Exclusivos";
-"PayWall.AppIcons.Notice" = "Personalize a aparência do Ugram na sua tela inicial.";
+"PayWall.AppIcons.Notice" = "Personalize a aparência do Shadowgram na sua tela inicial.";
 
-"PayWall.About.Title" = "Sobre o Ugram Pro";
-"PayWall.About.Notice" = "A versão gratuita do Ugram oferece dezenas de recursos e melhorias em relação ao aplicativo Telegram. Inovar e manter o Ugram em sincronia com as atualizações mensais do Telegram é um grande esforço que requer muito tempo e hardware caro.\n\nO Ugram é um aplicativo de código aberto que respeita sua privacidade e não incomoda você com anúncios. Ao se inscrever no Ugram Pro, você obtém acesso a recursos exclusivos e apoia um desenvolvedor independente.";
+"PayWall.About.Title" = "Sobre o Shadowgram Pro";
+"PayWall.About.Notice" = "A versão gratuita do Shadowgram oferece dezenas de recursos e melhorias em relação ao aplicativo Telegram. Inovar e manter o Shadowgram em sincronia com as atualizações mensais do Telegram é um grande esforço que requer muito tempo e hardware caro.\n\nO Shadowgram é um aplicativo de código aberto que respeita sua privacidade e não incomoda você com anúncios. Ao se inscrever no Shadowgram Pro, você obtém acesso a recursos exclusivos e apoia um desenvolvedor independente.";
 /* DO NOT TRANSLATE */
 "PayWall.About.Signature" = "@Kylmakalle";
 /* DO NOT TRANSLATE */
@@ -252,8 +252,8 @@
 "PayWall.Privacy" = "Política de Privacidade";
 "PayWall.TermsURL" = "https://swiftgram.app/terms";
 "PayWall.PrivacyURL" = "https://swiftgram.app/privacy";
-"PayWall.Notice.Markdown" = "Ao se inscrever no Ugram Pro, você concorda com os [Termos de Serviço do Ugram](%1$@) e com a [Política de Privacidade](%2$@).";
-"PayWall.Notice.Raw" = "Ao se inscrever no Ugram Pro, você concorda com os Termos de Serviço e Política de Privacidade do Ugram.";
+"PayWall.Notice.Markdown" = "Ao se inscrever no Shadowgram Pro, você concorda com os [Termos de Serviço do Shadowgram](%1$@) e com a [Política de Privacidade](%2$@).";
+"PayWall.Notice.Raw" = "Ao se inscrever no Shadowgram Pro, você concorda com os Termos de Serviço e Política de Privacidade do Shadowgram.";
 
 "PayWall.Button.OpenPro" = "Usar recursos Pro";
 "PayWall.Button.Purchasing" = "Adquirindo...";
