@@ -28,6 +28,33 @@ private typealias UgramEntry = SGItemListUIEntry<UgramSection, UgramBoolSetting,
 
 private let ghostKeys = ["ugramNoReadReceipts", "ugramNoTyping", "ugramHideOnline"]
 
+// MARK: Ugram - Telegram-settings-style icons for the hub rows.
+private let ugramGhostIcon = renderSettingsIcon(name: "Item List/Icons/Privacy", backgroundColors: [UIColor(rgb: 0x5856D6)])
+private let ugramChatsIcon = renderSettingsIcon(name: "Item List/Icons/Group", backgroundColors: [UIColor(rgb: 0x007AFF)])
+private let ugramMessagesIcon = renderSettingsIcon(name: "Item List/Icons/Effect", backgroundColors: [UIColor(rgb: 0xAF52DE)])
+private let ugramMediaIcon = renderSettingsIcon(name: "Item List/Icons/Photo", backgroundColors: [UIColor(rgb: 0xFF9500)])
+
+private func ugramPageIcon(_ page: UgramSettingsPage) -> UIImage? {
+    switch page {
+    case .basic:
+        return PresentationResourcesSettings.stars
+    case .chats:
+        return ugramChatsIcon
+    case .ghost:
+        return ugramGhostIcon
+    case .interface:
+        return PresentationResourcesSettings.appearance
+    case .messages:
+        return ugramMessagesIcon
+    case .media:
+        return ugramMediaIcon
+    case .calls:
+        return PresentationResourcesSettings.recentCalls
+    case .all:
+        return PresentationResourcesSettings.ugram
+    }
+}
+
 private func isGhostModeOn() -> Bool {
     let ugram = UgramSettings.shared
     return ghostKeys.allSatisfy { ugram.bool($0, default: false) }
@@ -116,6 +143,11 @@ public func ugramToolsController(context: AccountContext) -> ViewController {
                     presentControllerImpl?(actionSheet)
                 })
             })
+        },
+        toggleIcon: { _ in ugramGhostIcon },
+        disclosureIcon: { page in ugramPageIcon(page) },
+        actionIcon: { actionType in
+            return actionType == AnyHashable("hiddenChats") ? PresentationResourcesSettings.faceId : nil
         }
     )
 

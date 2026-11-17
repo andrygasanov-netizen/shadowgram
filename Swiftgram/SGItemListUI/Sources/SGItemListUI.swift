@@ -55,6 +55,10 @@ public final class SGItemListArguments<BoolSetting: Hashable, SliderSetting: Has
     let openDisclosureLink: (DisclosureLink) -> Void
     let action: (ActionType) -> Void
     let searchInput: (String) -> Void
+    // MARK: Ugram - optional settings-style icons
+    let toggleIcon: (BoolSetting) -> UIImage?
+    let disclosureIcon: (DisclosureLink) -> UIImage?
+    let actionIcon: (ActionType) -> UIImage?
 
     
     public init(
@@ -65,8 +69,14 @@ public final class SGItemListArguments<BoolSetting: Hashable, SliderSetting: Has
         setOneFromManyValue: @escaping (OneFromManySetting) -> Void = { _ in },
         openDisclosureLink: @escaping (DisclosureLink) -> Void = { _ in},
         action: @escaping (ActionType) -> Void = { _ in },
-        searchInput: @escaping (String) -> Void = { _ in }
+        searchInput: @escaping (String) -> Void = { _ in },
+        toggleIcon: @escaping (BoolSetting) -> UIImage? = { _ in nil },
+        disclosureIcon: @escaping (DisclosureLink) -> UIImage? = { _ in nil },
+        actionIcon: @escaping (ActionType) -> UIImage? = { _ in nil }
     ) {
+        self.toggleIcon = toggleIcon
+        self.disclosureIcon = disclosureIcon
+        self.actionIcon = actionIcon
         self.context = context
         //
         self.setBoolValue = setBoolValue
@@ -185,13 +195,13 @@ public enum SGItemListUIEntry<Section: SGItemListSection, BoolSetting: Hashable,
             return ItemListSectionHeaderItem(presentationData: presentationData, text: string, badge: badge, sectionId: self.section)
             
         case let .toggle(_, _, setting, value, text, enabled):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: text, value: value, enabled: enabled, maximumNumberOfLines: 0, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, icon: arguments.toggleIcon(setting), title: text, value: value, enabled: enabled, maximumNumberOfLines: 0, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.setBoolValue(setting, value)
             })
         case let .notice(_, _, string):
             return ItemListTextItem(presentationData: presentationData, text: .markdown(string), sectionId: self.section)
         case let .disclosure(_, _, link, text):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: text, label: "", sectionId: self.section, style: .blocks) {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, icon: arguments.disclosureIcon(link), title: text, label: "", sectionId: self.section, style: .blocks) {
                 arguments.openDisclosureLink(link)
             }
         case let .percentageSlider(_, _, setting, value):
@@ -216,6 +226,11 @@ public enum SGItemListUIEntry<Section: SGItemListSection, BoolSetting: Hashable,
                 arguments.setOneFromManyValue(settingName)
             }, tag: SGOneFromManyTag(setting: settingName))
         case let .action(_, _, actionType, text, kind):
+            if let icon = arguments.actionIcon(actionType) { // MARK: Ugram
+                return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, icon: icon, title: text, label: "", sectionId: self.section, style: .blocks) {
+                    arguments.action(actionType)
+                }
+            }
             return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: text, kind: kind, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) // Closing search keyboard if active
                     arguments.action(actionType)
