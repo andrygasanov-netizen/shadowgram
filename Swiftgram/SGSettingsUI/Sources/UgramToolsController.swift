@@ -70,12 +70,12 @@ private func ugramEntries(presentationData: PresentationData) -> [UgramEntry] {
     let id = SGItemListCounter()
 
     entries.append(.header(id: id.count, section: .quick, text: t("БЫСТРО", "QUICK"), badge: nil))
-    entries.append(.disclosure(id: id.count, section: .quick, link: .basic, text: t("Основные настройки ⭐", "Essentials ⭐")))
-    entries.append(.toggle(id: id.count, section: .quick, settingName: .ghostMode, value: isGhostModeOn(), text: t("Режим призрака 👻", "Ghost mode 👻"), enabled: true))
+    entries.append(.disclosure(id: id.count, section: .quick, link: .basic, text: t("Основные настройки", "Essentials")))
+    entries.append(.toggle(id: id.count, section: .quick, settingName: .ghostMode, value: isGhostModeOn(), text: t("Режим призрака", "Ghost mode"), enabled: true))
     entries.append(.notice(id: id.count, section: .quick, text: t("Одним переключателем: не отправлять «прочитано», «печатает…» и «в сети». По отдельности — в разделе «Режим призрака».", "One switch for no read receipts, no typing and no online status. Separately: in the \"Ghost mode\" section.")))
 
     entries.append(.header(id: id.count, section: .privacy, text: t("ПРИВАТНОСТЬ", "PRIVACY"), badge: nil))
-    entries.append(.action(id: id.count, section: .privacy, actionType: AnyHashable("hiddenChats"), text: t("Скрытые чаты 🔒", "Hidden chats 🔒"), kind: .generic))
+    entries.append(.action(id: id.count, section: .privacy, actionType: AnyHashable("hiddenChats"), text: t("Скрытые чаты", "Hidden chats"), kind: .generic))
     entries.append(.notice(id: id.count, section: .privacy, text: t("Зажмите чат в списке, чтобы заблокировать его (вход по Face ID или коду телефона) или скрыть из списка чатов. Скрытые чаты открываются отсюда.", "Long-press a chat in the list to lock it (Face ID or device passcode) or hide it from the chat list. Hidden chats open from here.")))
 
     entries.append(.header(id: id.count, section: .pages, text: t("РАЗДЕЛЫ", "SECTIONS"), badge: nil))

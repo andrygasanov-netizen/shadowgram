@@ -186,6 +186,7 @@ private enum SGBoolSetting: String {
     case ugramAutoSticker
     case ugramUnlimitedPins
     case ugramBackgroundNotifications
+    case ugramInstantPush
 }
 
 private enum SGOneFromManySetting: String {
@@ -203,6 +204,7 @@ private enum SGOneFromManySetting: String {
     case ugramUnreadReminder
     case ugramRecommended
     case ugramIslandBadge
+    case ugramNtfySubscribe
 }
 
 // MARK: Ugram
@@ -217,6 +219,53 @@ private let ugramTextStyles: [(value: String, ru: String, en: String)] = [
 ]
 
 private let ugramReminderHours: [Int] = [0, 1, 3, 6, 12, 24]
+
+// MARK: Ugram - instant notifications through a private ntfy.sh topic (Telegram "simple push").
+private func ugramNtfyTopic() -> String {
+    if let topic = UgramSettings.shared.string("ugramNtfyTopic"), !topic.isEmpty {
+        return topic
+    }
+    let chars = Array("abcdefghijklmnopqrstuvwxyz0123456789")
+    let topic = "ugram-" + String((0 ..< 24).map { _ in chars.randomElement()! })
+    UgramSettings.shared.setString(topic, for: "ugramNtfyTopic")
+    return topic
+}
+
+private func ugramNtfyPushURL(isRussian: Bool) -> String {
+    let message = (isRussian ? "Новое сообщение" : "New message").addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? ""
+    return "https://ntfy.sh/\(ugramNtfyTopic())?title=Ugram&message=\(message)&filename=m.txt&click=ugram%3A%2F%2F&tags=speech_balloon"
+}
+
+private func ugramUpdateInstantPush(context: AccountContext, enabled: Bool, isRussian: Bool) {
+    let newURL = ugramNtfyPushURL(isRussian: isRussian)
+    let oldURL = UgramSettings.shared.string("ugramNtfyRegisteredURL") ?? ""
+    let _ = (context.sharedContext.activeAccountContexts
+    |> take(1)
+    |> deliverOnMainQueue).startStandalone(next: { accounts in
+        for (_, accountContext, _) in accounts.accounts {
+            if !oldURL.isEmpty && (!enabled || oldURL != newURL) {
+                let _ = ugramUpdateSimplePush(account: accountContext.account, url: oldURL, register: false).startStandalone()
+            }
+            if enabled {
+                let _ = ugramUpdateSimplePush(account: accountContext.account, url: newURL, register: true).startStandalone()
+            }
+        }
+    })
+    UgramSettings.shared.setString(enabled ? newURL : "", for: "ugramNtfyRegisteredURL")
+}
+
+private func ugramOpenNtfy(context: AccountContext) {
+    let topic = ugramNtfyTopic()
+    UIPasteboard.general.string = topic
+    guard let url = URL(string: "ntfy://ntfy.sh/\(topic)") else {
+        return
+    }
+    UIApplication.shared.open(url, options: [:], completionHandler: { success in
+        if !success {
+            context.sharedContext.applicationBindings.openUrl("https://apps.apple.com/app/ntfy/id1625396347")
+        }
+    })
+}
 
 // MARK: Ugram - the badge drawn beside the Dynamic Island.
 private let ugramIslandBadges: [(value: String, ru: String, en: String)] = [
@@ -336,6 +385,9 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
     entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Закрепляйте сколько угодно чатов. Закрепы сверх лимита Telegram хранятся только на этом устройстве.", "Pin as many chats as you like. Pins over the Telegram limit are kept on this device only.")))
     entries.append(.oneFromManySelector(id: id.count, section: .ugramChatList, settingName: .ugramUnreadReminder, text: t("Напоминать о непрочитанном", "Unread reminder"), value: ugramReminderTitle(ugram.int("ugramUnreadReminderHours", default: 0), isRussian: isRussian), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Если вы закрыли Ugram, а непрочитанные сообщения остались, через выбранное время придёт напоминание.", "If you leave Ugram with unread messages, a reminder arrives after the chosen time.")))
+    entries.append(.toggle(id: id.count, section: .ugramChatList, settingName: .ugramInstantPush, value: ugram.bool("ugramInstantPush", default: false), text: t("Мгновенные уведомления ⚡️", "Instant notifications ⚡️"), enabled: true))
+    entries.append(.oneFromManySelector(id: id.count, section: .ugramChatList, settingName: .ugramNtfySubscribe, text: t("Подписаться в ntfy", "Subscribe in ntfy"), value: ugram.bool("ugramInstantPush", default: false) ? t("Открыть", "Open") : t("Сначала включите", "Turn on first"), enabled: ugram.bool("ugramInstantPush", default: false)))
+    entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Настоящие пуши без сервера: Telegram сообщает о новом сообщении на вашу личную тему ntfy.sh, а бесплатное приложение ntfy показывает уведомление. 1) Установите ntfy из App Store. 2) Включите переключатель. 3) Нажмите «Подписаться в ntfy» — тема откроется в приложении (или скопируется, если ntfy ещё не установлен: вставьте её в ntfy через «+»). В уведомлении нет текста сообщения — только «Новое сообщение»; нажатие открывает Ugram. Пуши приходят, когда Ugram закрыт или свёрнут.", "Real pushes without a server: Telegram reports new messages to your private ntfy.sh topic and the free ntfy app shows a notification. 1) Install ntfy from the App Store. 2) Turn this on. 3) Tap \"Subscribe in ntfy\" — the topic opens in the app (or is copied if ntfy isn't installed yet: add it in ntfy with \"+\"). The notification has no message text, just \"New message\"; tapping it opens Ugram. Pushes arrive while Ugram is closed or in the background.")))
     entries.append(.toggle(id: id.count, section: .ugramChatList, settingName: .ugramBackgroundNotifications, value: ugram.bool("ugramBackgroundNotifications", default: false), text: t("Фоновые уведомления 🔔", "Background notifications 🔔"), enabled: true))
     entries.append(.notice(id: id.count, section: .ugramChatList, text: t("Обычные пуши в переподписанном Ugram не работают. Вместо них iOS иногда будит приложение в фоне (обычно раз в 15 минут – несколько часов, как решит система), Ugram синхронизируется и присылает уведомление о новых сообщениях. Не закрывайте Ugram смахиванием и не отключайте «Обновление контента» в настройках iPhone.", "Regular push doesn't work in a re-signed Ugram. Instead iOS wakes the app in the background now and then (usually every 15 minutes to a few hours, as the system decides); Ugram syncs and notifies you about new messages. Don't swipe Ugram away and keep Background App Refresh on.")))
 
@@ -765,6 +817,10 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             UgramSettings.shared.setBool(value, for: "ugramDisableAutoDownload")
         case .ugramBackgroundNotifications:
             UgramSettings.shared.setBool(value, for: "ugramBackgroundNotifications")
+        case .ugramInstantPush:
+            UgramSettings.shared.setBool(value, for: "ugramInstantPush")
+            let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+            ugramUpdateInstantPush(context: context, enabled: value, isRussian: presentationData.strings.baseLanguageCode == "ru")
         case .ugramAutoApproveJoinRequests:
             UgramSettings.shared.setBool(value, for: "ugramAutoApproveJoinRequests")
         case .ugramEditHistory:
@@ -818,6 +874,9 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
             simplePromise.set(true)
             presentControllerImpl?(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: isRussian ? "Рекомендуемые функции включены." : "Recommended features are on.", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
             return
+        case .ugramNtfySubscribe:
+            ugramOpenNtfy(context: context)
+            return
         case .ugramAdminFolders:
             let _ = (ugramUpdateAdminFolders(account: context.account, groupsTitle: isRussian ? "Мои группы" : "My groups", channelsTitle: isRussian ? "Мои каналы" : "My channels")
             |> deliverOnMainQueue).start(next: { result in
@@ -839,6 +898,8 @@ public func sgSettingsController(context: AccountContext, page: UgramSettingsPag
 
         switch (setting) {
             case .ugramAutoPostfix, .ugramAdminFolders, .ugramRecommended:
+                break
+            case .ugramNtfySubscribe:
                 break
             case .ugramIslandBadge:
                 let current = SGSimpleSettings.shared.customAppBadge

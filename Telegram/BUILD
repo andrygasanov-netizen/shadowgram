@@ -436,6 +436,7 @@ plist_fragment(
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>telegram</string>
+                <string>ugram</string>
             </array>
         </dict>
         <dict>

@@ -2860,6 +2860,9 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     #endif
     
     private func openUrl(url: URL) {
+        if url.scheme?.lowercased() == "ugram" { // MARK: Ugram - from a ntfy notification: just open the app
+            return
+        }
         let _ = (self.sharedContextPromise.get()
         |> take(1)
         |> mapToSignal { sharedApplicationContext -> Signal<(SharedAccountContextImpl, AuthorizedApplicationContext?, UnauthorizedApplicationContext?), NoError> in
