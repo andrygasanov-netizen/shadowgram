@@ -2,6 +2,11 @@ name: Build Shadowgram IPA
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Shadowgram version: Telegram version + our release, e.g. 13.2.1.1 or 13.2.1.1a"
+        required: false
+        default: ""
 
 permissions:
   contents: write
