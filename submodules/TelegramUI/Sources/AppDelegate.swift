@@ -1080,9 +1080,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                     PresentationAppIcon(name: "SGNeonBlue", imageName: "SGNeonBlue"),
                 ]
 
-                if Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
-                    icons.append(PresentationAppIcon(name: "SGBeta", imageName: "SGBeta"))
-                }
+                // MARK: Ugram - no Swiftgram "Beta" icon (re-signed installs look like sandbox builds)
                 //
                 
                 return icons
