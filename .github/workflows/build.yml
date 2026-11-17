@@ -114,8 +114,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Every build gets its own release; older releases are kept.
-          gh release create "ios-build-${{ github.run_number }}" build/artifacts/Shadowgram.ipa \
-            --title "Shadowgram iOS (build ${{ github.run_number }})" \
+          # Named by version: Telegram version + our release number (+ a letter for small updates).
+          VERSION="${{ inputs.version }}"
+          if [ -n "$VERSION" ]; then
+            TAG="ios-v$VERSION"; TITLE="Shadowgram $VERSION (iOS)"
+          else
+            TAG="ios-build-${{ github.run_number }}"; TITLE="Shadowgram iOS (build ${{ github.run_number }})"
+          fi
+          gh release create "$TAG" build/artifacts/Shadowgram.ipa \
+            --title "$TITLE" \
             --notes-file .github/RELEASE_NOTES.md \
             --target "$GITHUB_SHA" \
             --latest
